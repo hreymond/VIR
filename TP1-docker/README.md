@@ -14,7 +14,8 @@ Le dossier `website` contient le code du site web (`flask_minimal.py`), un fichi
 
 Ce fichier `Dockerfile` permet la construction de l'image Docker qui servira de modèle pour la création de conteneurs. Nous reviendrons plus tard sur le contenu de ce fichier.
 
-> [!NOTE] **Docker, images et conteneurs**
+> [!NOTE] 
+> **Docker, images et conteneurs**
 >  Docker permet l'exécution de processus de manière isolée dans des #strong[conteneurs]. Ces conteneurs sont dits _self-contained_, c'est à dire qu'ils contiennent toutes les dépendances nécessaire à l'exécution du processus.
 
 > Une #strong[image] Docker est un ensemble de fichiers, bibliothèques, binaires et de configurations qui sert de modèle pour la création d'un conteneur.
@@ -27,7 +28,7 @@ Ce fichier `Dockerfile` permet la construction de l'image Docker qui servira de 
 - Avec `docker image list`, vérifier que l'image existe bien.
 - Lancer `docker run website`, pour créer un conteneur à partir de l'image `website`. Le serveur devrait se lancer et écouter sur le port 5000 (`running on http://<ip>:5000`).
 
-> [!NOTE]
+> **NOTE**
 >  **Redirection de ports**
 > Si vous essayez d'accéder au site web depuis votre ordinateur, cela ne fonctionnera pas. Le serveur web écoute bien sur le port 5000, mais il est uniquement accessible au sein du réseau docker, et pas depuis votre machine hôte (pour vous en convaincre, vous pouvez regarder les ports actifs sur votre machine avec `netstat -tln`).
 > Pour rendre le serveur accessible depuis l'extérieur du conteneur, il est nécessaire faire une redirection de port (#emph[port-forwarding] en anglais). //L'objectif est que le réseau trafic entrant sur le port 5000 de notre machine soit redirigé vers le port 5000 du conteneur. Pour cela, on doit relancer notre conteneur.
