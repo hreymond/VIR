@@ -24,13 +24,15 @@ Ce fichier `Dockerfile` permet la construction de l'image Docker qui servira de 
 >
 > **Docker, images et conteneurs**
 >
->  Docker permet l'exécution de processus de manière isolée dans des #strong[conteneurs]. Ces conteneurs sont dits _self-contained_, c'est à dire qu'ils contiennent toutes les dépendances nécessaire à l'exécution du processus.
+>  Docker permet l'exécution de processus de manière isolée dans des **conteneurs**. Ces conteneurs sont dits _self-contained_, c'est à dire qu'ils contiennent toutes les dépendances nécessaire à l'exécution du processus.
 >
-> Une #strong[image] Docker est un ensemble de fichiers, bibliothèques, binaires et de configurations qui sert de modèle pour la création d'un conteneur.
+> Une **image** Docker est un ensemble de fichiers, bibliothèques, binaires et de configurations qui sert de modèle pour la création d'un conteneur.
 >
 > Dans le cas de notre application web, notre image contiendra toutes les dépendances (python, paquets pythons, code de l'application). Notre conteneur utilisera cette image pour exécuter un processus : notre serveur web.
 
 ### Construire une image et lancer un conteneur
+
+Dans le répertoire `website`
 
 - Lancer `docker build . -t website` pour construire une image nommée `website` à partir du `Dockerfile`.
 - Avec `docker image list`, vérifier que l'image existe bien.
@@ -42,7 +44,7 @@ Ce fichier `Dockerfile` permet la construction de l'image Docker qui servira de 
 >
 > Si vous essayez d'accéder au site web depuis votre ordinateur, cela ne fonctionnera pas. Le serveur web écoute bien sur le port 5000, mais il est uniquement accessible au sein du réseau docker, et pas depuis votre machine hôte (pour vous en convaincre, vous pouvez regarder les ports actifs sur votre machine avec `netstat -tln`).
 >
-> Pour rendre le serveur accessible depuis l'extérieur du conteneur, il est nécessaire faire une redirection de port (#emph[port-forwarding] en anglais). //L'objectif est que le réseau trafic entrant sur le port 5000 de notre machine soit redirigé vers le port 5000 du conteneur. Pour cela, on doit relancer notre conteneur.
+> Pour rendre le serveur accessible depuis l'extérieur du conteneur, il est nécessaire faire une redirection de port (_port-forwarding_ en anglais). L'objectif est que le réseau trafic entrant sur le port 5000 de notre machine soit redirigé vers le port 5000 du conteneur. Pour cela, on doit relancer notre conteneur.
 
 - Arrêter le conteneur Ctrl-c
 - Relancer le conteneur en arrière plan (option `-d`), en ajoutant la redirection de port :  `docker run -d -p 5000:5000 website`.
@@ -93,3 +95,59 @@ Le site enregistre les statistiques des requêtes effectués dans un fichier nom
 - Lancer un nouveau conteneur, toujours avec le même volume. Est-ce que le fichier `queried_names.json` est toujours présent dans le conteneur ?
 
 :white_check_mark: Le site web est déployé, et ses données persistées !
+
+## Partie II : Création d'images
+
+L'équipe de développement s'est rendu compte des limitations d'utiliser un fichier json comme base de donnée. 
+Il ont donc sorti une nouvelle version du site web, qui utilise une base de donnée maison :"SuperDB".
+Cette fois ci, c'est à vous de créer l'image Docker.
+
+Let's decypher the current Dockerfile step by step, understanding each component:
+
+```dockerfile
+# Start with a base image
+FROM python:3.14-slim
+```
+
+This line selects our foundation. Think of it as choosing the operating system and core tools. We use python:3.14-slim because it:
+- Includes Python 3.14 pre-installed
+- Contains essential Linux tools
+- Maintains a relatively small size
+
+```dockerfile
+# Set up our working directory
+WORKDIR /app
+
+# Copy the application content COPY <src> <dst>
+COPY . .
+
+# Install the Python packages we need
+RUN pip install -r requirements.txt
+```
+
+We first copy the content of the current folder (Readme.md, flask_minimal.py, ...) into the app/ folder in the image. 
+
+Then, we install the dependancies for our python app, listed in the `requirements.txt` file.
+
+```dockerfile
+# Tell Flask which application to run
+ENV FLASK_APP=flask_minimal.py
+
+# Specify the command to start our application
+CMD ["flask", "run", "--host=0.0.0.0"]
+```
+
+This sets up:
+- Environment variables Flask needs
+- The command to start our application
+- Network access from outside the container
+
+# À vous de jouer !
+
+La nouvelle version du site web est dans le répertoire `website-v2`.
+
+Les source du logiciel "SuperDB" sont dans le répertoire CustomDB.
+En vous aidant du Readme.md de CustomDB modifier le Dockerfile pour :
+- Installer les dépendances pour compiler CustomDB
+- Compiler le CustomDB.c pour produire l'exécutable CustomDB
+- Tagger avec la version : `docker build . -t website:v2`
