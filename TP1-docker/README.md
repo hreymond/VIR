@@ -8,9 +8,15 @@ Objectif du TP :
 ## Partie I : Conteneurs
 
 Vous êtes en charge du déploiement d'un site web.
-Ce site assez simple demande à l'utilisateur d'entrer le pseudonyme d'un joueur Minecraft. Le site affiche ensuite la tête du joueur en question, et enregistre la requête dans un fichier json : `queried_names.json`.
+Ce site assez simple demande à l'utilisateur d'entrer le pseudonyme d'un joueur Minecraft. 
 
-Le dossier `website` contient le code du site web (`flask_minimal.py`), un fichier Readme, ainsi qu'un Dockerfile.
+![Main page](figures/index.png)
+
+Le site affiche ensuite la tête du joueur en question, et enregistre la requête dans un fichier json : `queried_names.json`. Par défaut, le site écoute sur le port 5000.
+
+![Display skin page](figures/display_skin.png)
+
+Le dossier `website` contient le code du site web (`flask_minimal.py`), la liste des dépendances du site (`requirements.txt`), ainsi qu'un Dockerfile.
 
 Ce fichier `Dockerfile` permet la construction de l'image Docker qui servira de modèle pour la création de conteneurs. Nous reviendrons plus tard sur le contenu de ce fichier.
 
