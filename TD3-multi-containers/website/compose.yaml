@@ -1,0 +1,17 @@
+services:
+  website:
+    image: website:v3
+    ports:
+      - "5010:5000"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - db_data:/var/lib/postgresql/
+
+volumes:
+  db_data:

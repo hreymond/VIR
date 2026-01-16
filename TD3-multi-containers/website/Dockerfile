@@ -15,5 +15,4 @@ COPY flask_minimal.py .
 
 ENV FLASK_APP=flask_minimal.py
 
-CMD ["bash"]
-# CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["flask", "run", "--host=0.0.0.0"]
