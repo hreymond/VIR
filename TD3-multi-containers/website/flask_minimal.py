@@ -15,7 +15,7 @@ conn = psycopg2.connect(host="postgres",
 cur = conn.cursor()
 
 # Create database if it does not exist
-cur.execute('CREATE TABLE stats (id serial PRIMARY KEY,'
+cur.execute('CREATE TABLE IF NOT EXISTS stats (id serial PRIMARY KEY,'
                                  'username varchar (150) NOT NULL,'
                                  'nb_query integer  NOT NULL)'
                                  )
@@ -77,6 +77,30 @@ def admin_view():
     return html_page
 
 # Update the count of username
-def update_query_count(username) -> int:
-    cur.execute(f"""Update stats set nb_query = nb_query, 0 + 1 where username={username}""")
+def update_query_count(username: str) -> int:
+    # Discard empty usernames
+    username = (username or "").strip()
+    if not username:
+        return 0
+
+    # Prevent crashes and collisions
+    cur.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS stats_username_uq
+        ON stats (username);
+    """)
+
+    # Atomic UPSERT: insert = 1 if non-existent otherwise +1
+    cur.execute(
+        """
+        INSERT INTO stats (username, nb_query)
+        VALUES (%s, 1)
+        ON CONFLICT (username)
+        DO UPDATE SET nb_query = stats.nb_query + 1
+        RETURNING nb_query;
+        """,
+        (username,)
+    )
+
+    new_count = cur.fetchone()[0]
     conn.commit()
+    return new_count
