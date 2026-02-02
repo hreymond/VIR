@@ -164,19 +164,18 @@ Démarrons notre déploiement à l'aide de podman compose :
 
 :question: Comment sont nommés les conteneurs créés ? À quel réseau sont-il attachés ?
 
+Supprimer le déploiement
+
+- `podman compose down`
+
+- Modifier le `compose.yaml` pour qu'il fasse apparaitre plusieurs instances de `website`, à l'aide du paramètre `scale`    et Utiliser une plage de ports : ports: "8080-8082:80"
 - Parler rapide de scaling
 - Relier à la notion d'orchestration (est-ce que docker-compose est un orchestrateur ? ) Oui/Non ? Pourquoi ?
 
-## Bonus
 
-Maintenant que votre site 
+# Bonus
 
 
-# TODO 
-
-- [ ] Ajouter liaison Postgresql
-- [ ] Ajouter docker-compose
-- [ ] Demander extensions à 4 -> Connecter le frontend au voisins
 
 
 # Liste des commandes utilisées
