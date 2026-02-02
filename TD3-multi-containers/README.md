@@ -168,15 +168,20 @@ Supprimer le déploiement
 
 - `podman compose down`
 
-- Modifier le `compose.yaml` pour qu'il fasse apparaitre plusieurs instances de `website`, à l'aide du paramètre `scale`    et Utiliser une plage de ports : ports: "8080-8082:80"
-- Parler rapide de scaling
-- Relier à la notion d'orchestration (est-ce que docker-compose est un orchestrateur ? ) Oui/Non ? Pourquoi ?
+Notre site est presque prêt ! Il lui manque un dernier élément essentiel : des sauvegardes de la base de donnée. 
 
+Pour cela, on ajoutera un conteneur nommé db-utils, basé sur l'image postgres. Ce conteneur n’expose aucun port, mais doit pouvoir :
+- se connecter à la base de données postgres pour faire un backup
+- utiliser un volume différent de `db_data` pour stocker les résultats
+- démarrer après la base de données
 
-# Bonus
+Pour éviter l'exécution de la commande de base du conteneur `postgres`, qui démarre une base de donnée, on écrasera la commande de lancement avec l'argument `command: ["sh", "-c", "pg_dump > /backup/backup.sql"]`. Au préalable, on aura défini différentes variables d'environnement :
 
+- PGPASSWORD = admin
+- PGUSER = postgres
+- PGHOST = postgres
 
-
+À votre tour de jouer ! Ajoutez le conteneur db-utils au `compose.yaml`
 
 # Liste des commandes utilisées
 ```
