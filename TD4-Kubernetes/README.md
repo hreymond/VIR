@@ -75,7 +75,7 @@ Au fait:question: Connaissiez-vous la partie réseau avant de démarrer k3s ?
 
 :question: Quelles sont les commandes à soumettre ?
 
-Normalement, à cette étape, votre système kubernetes fonctionne. Il est prêt à exécuter recevoir des instructions. Ce qu'on appelle 'instructions' ce sont des documents de description de ce que vous allez faire exécuter dans votre infrastructure. D'une manière générale il peut s'agir de composants réalisant des tâches, de services permettant d'exposer l'accès à ces tâches, de lieu de stockage... La figure suivante indique les différents artefacts de description que vous pouvez définir. 
+Normalement, à cette étape, votre système kubernetes fonctionne. Il est prêt à exécuter recevoir des instructions. Ce qu'on appelle 'instructions' ce sont des documents de description de ce que vous allez faire exécuter dans votre infrastructure, à l'image des fichiers `compose.yaml` de podman compose. D'une manière générale il peut s'agir de composants réalisant des tâches, de services permettant d'exposer l'accès à ces tâches, de lieu de stockage... La figure suivante indique les différents artefacts de description que vous pouvez définir. Dans ce TD, nous nous intéresseront aux artefacts entourés de noir.
 
 ```mermaid
 graph TB
@@ -89,6 +89,8 @@ graph TB
     A --> I[Namespaces]
 
     style A fill:#326ce5,color:white
+    classDef highlighted stroke:#36454F,stroke-width:2px
+    class B,C,D,E highlighted;
 ```
 
 Nous vous suggérons de rebooter votre machine pour voir si vous atteignez ce point sans difficulté.   
