@@ -117,7 +117,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: nginx:1.19
+        image: nginx:stable
         ports:
         - containerPort: 80
 
@@ -137,7 +137,7 @@ spec:
 
 :question: Selon vous, que fait cette description ? Par exemple, avez-vous identifié un lien avec Docker ?
 
-Pour installer cette description vous pouvez déclarer un ou deux fichiers de description. Le séparateur `---` permet de séparer deux descriptions qui sont traitées de manière indépendante. Pour déployer une description l'instruction est `kubectl apply -f <fichierdescripton.yaml>`.
+Pour installer cette description vous pouvez déclarer un ou deux fichiers de description. Le séparateur `---` permet de séparer deux descriptions qui sont traitées de manière indépendante. Pour déployer une description l'instruction est `kubectl apply -f <fichierdescription.yaml>`.
 
 Si tout s'est bien passé, vous pouvez vérifier que la déclaration s'est bien réalisé avec les constats et instructions suivantes : 
 
@@ -150,7 +150,7 @@ service/demo-service created
 Vous pouvez vérifier plusieurs choses.
 
 - Combien de réplicats du service ont-ils été déployés ?  `kubectl get pods`
-Modifiez le nombre de replicats dans le descripteur et vérifiez que le nombre de replicats s'adapte automatiquement. 
+Modifiez le nombre de replicats dans le descripteur et vérifiez que le nombre de replicats s'adapte automatiquement quand vous appliquez la configuration.
 
 - Vérifiez que le service est bien installé.  `kubectl get services`
 
@@ -164,20 +164,22 @@ En utilisant la commande `kubectl describe service <nom-service>`, essayez de tr
 La commande `kubectl describe <descripteur> <nom>` permet d'obtenir une description de tous les artefacts déployés dans votre infrastructure. Vous pouvez, par exemple l'utiliser pour consulter la description d'un des pods. 
 
 ### critctl
-La commande `critctl` est une commande équivalente à la commande `podman` ou `docker`. Elle permet de consulter l'état des conteneur et des images de votre cluster Kube. 
-Par exemple `critcl ps` liste l'état de vos conteneurs. 
+La commande `crictl` est une commande équivalente à la commande `podman` ou `docker`. Elle permet de consulter l'état des conteneur et des images de votre cluster Kube. 
+Par exemple `crictl ps` liste l'état de vos conteneurs. 
 
-:question: Sauriez vous modifier un de vos replicats en le forçant à afficher une page simple, puis vérifier qu'un de vos site web affiche quelque chose de différent ?
+:question: Sauriez-vous modifier un de vos replicats pour qu'il affiche une page différente de la page nginx par défaut ? La page html servie par nginx est stockée dans le répertoire `/usr/share/nginx/html/`.
 
 ### kubectl run
+
 :question: Que fait la commande suivante `kubectl run curl --image=curlimages/curl -i --rm --restart=Never -- curl demo-service` ?
 
 A partir de ce que vous avez compris de crictl, lancez un `curl demo-service` sur un des pods. 
 
+
 ### Quelques dernières commandes à tester
 `kubectl describe pod <pod-name>`    
 `kubectl logs <pod-name>`, vérifiez que vos serveurs web ont bien fonctionné.  
-`kubectl exec -it <pod-name> -- <cmd>`, testez que la commande curl existe, puis lancez la commande `curl demo-service`sur un des pods ngnix.    
+`kubectl exec -it <pod-name> -- <cmd>`, testez que la commande curl existe, puis lancez la commande `curl demo-service`sur un des pods nginx.    
 
 A cette étapes quelles sont vos analyse de Kubernetes par rapport à Docker, voyez-vous des éléments de similitude ou de différence ?
 
@@ -210,5 +212,5 @@ kubectl logs <pod-name>
 kubectl exec -it <podname> -- <cmd>
 kubectl top pod
 
-critctl ps
+crictl ps
 ```
