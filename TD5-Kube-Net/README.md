@@ -6,7 +6,7 @@ Objectif du TD :
 ## Partie 1 : Déploiement local et jouons avec les pods
 
 Nous allons repartir d'un déploiement initial simple. 
-Vérifiez que votre système kube n'a pas de déployement en cours d'exécution (`kubectl get deployement`, `kubectl delete deployment <name>`
+Vérifiez que votre système kube n'a pas de déployement en cours d'exécution (`kubectl get deployment`, `kubectl delete deployment <name>`
 ), puis déployez le descripteur suivant (`kubectl apply -f <descripteur.yaml>).
 
 ```yaml
@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: nginx:1.19
+        image: nginx:stable
 ```
 
 Définissez un second descripteur `steph-2` avec un seul réplicat de label app = `elp`. Deployez le second descripteur. 
@@ -40,7 +40,7 @@ Votre système doit contenir :
 
 A l'aide de la commande `kubectl describe pods <podId>` identifiez les adresses ip internes du cluster qui permet de joindre les différents pods.    
 A l'aide de la commande `curl`, testez ces différentes adresses et vérifiez que le serveur nginx répond bien.    
-A l'aide de la commande `crictl` modifiez le serveur du service `elp` afin que sa page web réponde "Bonjour ELP".    
+A l'aide de la commande `crictl` modifiez le serveur du service `elp` afin que sa page web réponde "Bonjour ELP". La page html servie par nginx est stockée dans le répertoire `/usr/share/nginx/html/`.
 
 
 La notion de service permet de fournir une adresse unique sur un replicatSet. En effet, un pods n'a aucune garantie de durée de vie. Les évolutions font que les pods sont remplacés à n'importe quel moment (pour différentes raisons).
@@ -63,13 +63,20 @@ Passez à 0 replicas, vérifiez que cela colle bien,
 puis revenez à 1 replicas. testez.  
 Enfin remettez 6 replicas et vérifiez que votre description de service colle bien à votre spécification.   
 
-Listez les endpointslices.
+Listez les endpoints.
 
 ## Partie 2 : Accès distant
+ 
 Afin de mettre à disposition une application il faut passer par un gestionnaire de trafic. K3s repose sur [traefik](https://doc.traefik.io/traefik/).
+
 Elle semble avoir quelques soucis et nous suggérons de ne pas l'installer par défaut en utilisant l'option `--disable=traefik` puis d'installer la dernière version après démarrage.
 
+- Arrêter k3s
+- Modifier le script `startk3sServer.sh` pour ajouter l'option `--disable=traefik` au lancement de k3s.
+- Relancer k3s, avec le script `startk3sServer.sh`
+
 ### Installation de traefik
+
 Pour utiliser traefik nous allons suivre le [tutoriel standard](https://doc.traefik.io/traefik/getting-started/kubernetes/) en passant par helm. C'est un gestionnaire de déploiement pour Kube.   
 Les commandes pour installer la dernière version de traefik sont les suivantes : 
 
@@ -112,6 +119,7 @@ Enfin assurez-vous d'accèder au dashboard [http://dashboard.localhost/dashboard
 Si vous accèdez à un dashboard, vous pouvez aller vers la suite.
 
 ### Mise à disposition de service
+
 Si traefik est installé et que la GatewayClass est active, vous pouvez déclarer de nouveau accès à des services.
 
 Nous vous proposons d'utiliser deux services pour tester deux techniques d'accès. Les IngressRoute et la GatewayAPI. 
@@ -178,14 +186,27 @@ Créez ce fichier et installez le sur votre serveur. Si tout se passse bien vous
 
 Vous pouvez tester l'accès à votre application de votre machine. Mais surtout vous pouvez tester l'application à partir d'une autre machine. 
 
-Cherchez l'option `curl` vous permettant de tester directaion via l'IP.
-Utilisez l'outil `ab` pour tester la machine du voisin. 
+Jusqu'à présent nous avons utilisé `curl` pour tester l'accès à un site directement via son IP. Cependant, Traefik route le trafic en fonction du nom de domaine indiqué dans la requête, il est donc nécessaire de l'indiquer à `curl`
 
+:question: Quel est le nom de domaine attaché à notre route ?
+
+Depuis votre machine, accédez au site whoami à l'aide de la commande `curl`
+
+Pour tester l'application du voisin, il est nécessaire de fournir à `curl` deux informations :
+
+- Le nom de domaine de l'application
+- L'adresse IP du voisin, car aucun enregistrement DNS ne lie le nom de domaine à cette IP.
+
+Pour cela, on utilisera l'option `-H` de `curl`, qui permet de spécifier le contenu du header HTTP.
+
+`curl -H "Host: <Nom de domaine de whoami>" <IP serveur>`
+
+Utilisez l'outil `ab` pour tester la machine du voisin. 
 
 # Liste des commandes utiles
 ```
-kubectl get deployement
-kubectl delete deployement <deploymentname>
+kubectl get deployment
+kubectl delete deployment <deploymentname>
 
 kubectl apply -f <descripteur.yaml>
 kubectl describe pod <podId>
