@@ -201,8 +201,6 @@ Pour cela, on utilisera l'option `-H` de `curl`, qui permet de spécifier le con
 
 `curl -H "Host: <Nom de domaine de whoami>" <IP serveur>`
 
-Utilisez l'outil `ab` pour tester la machine du voisin. 
-
 # Liste des commandes utiles
 ```
 kubectl get deployment
