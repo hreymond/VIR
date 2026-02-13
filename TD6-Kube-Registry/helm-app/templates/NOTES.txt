@@ -1,0 +1,15 @@
+-----------------------------
+       ":"
+     ___:____     |"\/"|
+   ,'        `.    \  /
+   |  O        \___/  |
+ ~^~^~^~^~^~^~^~^~^~^~^~^~
+
+Ce chart déploie un pod nginx derrière un service de type ClusterIP
+
+Pour vérifier le bon fonctionnement du déploiement : 
+
+Récupérer l'IP du service
+- kubectl describe svc {{ include "helm-app.fullname" . }}-demo-service | grep "IP:"
+Curl le serveur
+- curl <IP>:5000

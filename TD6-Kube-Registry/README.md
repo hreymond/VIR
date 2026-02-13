@@ -3,7 +3,7 @@
 Objectif du TD :
 - :dart: Comprendre les dépôts locaux
 
-## Partie 1 : Registry
+# Partie 1 : Registry
 Une image docker, podman, kubernetes (containerd) est stockée dans un repository. 
 Par exemple lorsque vous récupérez l'image `traefik/whoami`, de la session précédente, celle-ci est puisée sur dans un dépot de référence comme docker.io
 `https://hub.docker.com/r/traefik/whoami`.
@@ -96,6 +96,83 @@ spec:
 Déployez cette image et vérifiez que cela ne fonctionne pas. Pour corriger cela, vous devez indiquer dans un fichier de configuration de k3s, comment résoudre vos registry d'image. 
 Le fichier à définir est le fichier `/etc/rancher/k3s/registries.yaml`. Dont la syntaxe est décrite [ici](https://docs.k3s.io/installation/private-registry).
 
+# Partie 2 - Helm
+
+Description de Helm 
+- Gestionnaire de Packet
+- En pratique, quand on héberge une application, on ne va pas modifier les descripteurs yaml
+
+## Chart Helm
+
+- Examinger les deployment et service 
+
+```yaml
+# Templating
+# Macro de base, définies dans `_helpers.tpl`
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm-app.fullname" . }}
+```
+
+:question:  `helm-app.fullname` est une macro définie dans `_helpers.tpl`. Retrouvez la. De quoi est composé le full-name ?
+
+```yaml
+# Utilisations des "valeurs"
+    spec:
+      containers:
+      - name: web
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 80
+```
+
+:question: Trouvez dans les fichiers de template à quoi correspondent les différentes options présentes dans le `values.yaml` ?
+
+
+## Ajouter un template
+
+Dans le TD précédent, nous avons vu comment définir une GatewayAPI pour accéder à une application depuis l'extérieur du cluster.
+
+Reprenons la définition d'une HTTPRoute du TP précédent :
+
+```yaml
+# httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: whoami
+spec:
+  parentRefs:
+    - name: traefik-gateway
+  hostnames:
+    - "whoami-gatewayapi.localhost"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: whoami
+          port: 80
+```
+
+Modifiez cette définition pour en faire un template pour notre application nginx. 
+Le paramétrage de ce template se fera de cette manière :
+
+```yaml
+# Dans values.yaml
+route:
+  hostname: "monsupersite.localhost"
+  path: "/site"
+```
+
+# Partie 3 - Packager notre application
+
+Dossier `minecraft-app`
+-> Chart Helm incomplet
+  -> Paramètres définis dans `values.yaml`
+  -> Aucun templates, seulement le fichier `_helpers.tpl`, et les notes de déploiement
 
 ## Comment nettoyer k3s 
 Si vous voulez repartir d'une configuration propre de k3s, vous pouvez suivre les étapes suivantes.
