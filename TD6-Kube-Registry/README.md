@@ -44,6 +44,7 @@ Et vérifier que l'image est dans votre registry
 `curl <url>/v2/<ns>/<image>/tags/list`
 
 ## Utiliser cette registry dans Kubernetes
+
 Définissez un service `testwho` et un déploiement reposant sur l'image que vous venez de pousser. 
 Dans votre yaml, doit apparaitre une spécification de la forme :
 ````
@@ -64,8 +65,8 @@ IP: xx.xx.xx.xx
 ...
 ````
 
-
 ## Utilisation d'une registry commune
+
 Kubernetes est une infrastructure de simplification du run. Dans l'exemple précédent, la mise à disposition de l'image se fait sur une registry que vous identifiez de manière unique et précise par son IP ou son nom comme localhost. Mais les images sont indépendantes de vos registry. Vous pouvez stocker une image postgres ou whoami sur votre infrastructure. 
 
 Dans cet exercice, nous modifions le descripteur de déploiement afin d'utiliser l'image `maboite.hj/tc/whoami:sfr`. C'est-à-dire votre image précédente mais que vous stockeriez sur une autre registry.
@@ -96,117 +97,86 @@ spec:
 Déployez cette image et vérifiez que cela ne fonctionne pas. Pour corriger cela, vous devez indiquer dans un fichier de configuration de k3s, comment résoudre vos registry d'image. 
 Le fichier à définir est le fichier `/etc/rancher/k3s/registries.yaml`. Dont la syntaxe est décrite [ici](https://docs.k3s.io/installation/private-registry).
 
-# Partie 2 - Helm
+# Partie 2 : Déployer notre application
 
-Description de Helm 
-- Gestionnaire de Packet
-- En pratique, quand on héberge une application, on ne va pas modifier les descripteurs yaml
+Objectif : déployer l'application du TD3 - Multicontainers
 
-Installation :
-- `export KUBECONFIG=/etc/rancher/k3s/k3s.yaml`
-- Si clé K3S, rien à faire
-- Sinon, regarder : https://helm.sh/docs/intro/install/
+## Déploiements
 
-## Chart Helm
+### Website:v3
 
-- Examinger les deployment et service 
+Créer un déploiement pour héberger deux réplicats de notre site :
 
-```yaml
-# Templating
-# Macro de base, définies dans `_helpers.tpl`
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "helm-app.fullname" . }}
-```
+- Si nécessaire, reconstruire l'image website:v3
+- Tagger l'image, et la pousser dans le registry créé précédemment
+- Créer le déploiement correspondant à notre site (image website:v3, deux réplicats)
 
-:question:  `helm-app.fullname` est une macro définie dans `_helpers.tpl`. Retrouvez la. De quoi est composé le full-name ?
+Tester le déploiement :
+- Vérifier que les pods sont bien créés, et leur état. Si nécessaire, inspecter les logs du pod à l'aide de `kubectl logs <POD_ID>`.
+- Vérifier qu'il est possible d'accéder au site à l'aide de l'IP du pod : `curl <POD_IP>:5000`
+
+### Postgres
+
+Créer un déploiement pour héberger la base de donnée postgres (image postgres, un réplicat). La base de donnée écoute par défaut sur le port 5432.
+
+Comme précédement, il faudra définir la variable d'environnement `POSTGRES_PASSWORD` à `admin`. Pour cela, on utilisera la syntaxe suivante :
 
 ```yaml
-# Utilisations des "valeurs"
-    spec:
-      containers:
-      - name: web
-        image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
-        ports:
-        - containerPort: 80
+containers:
+  - name: bdd
+    env:
+      - name: ENV_VAR_NAME
+        value: ENV_VAR_VALUE
+    ...
 ```
 
-:question: Trouvez dans les fichiers de template à quoi correspondent les différentes options présentes dans le `values.yaml` ?
+Tester le déploiement :
+- Vérifier que le pod est bien créé, et son état. Si nécessaire, inspecter les logs du pod à l'aide de `kubectl logs <POD_ID>`.
+- Tester, depuis l'hôte, la connection à la base de donnée `pg_isready -h <host_name>`, en utilisant l'adresse IP du pod comme hostname.  L'installation de l'outil `pg_isready` est détaillée en fin de TD [Lien](#-installation-de-pg_isready).
 
+Pour le moment, il n'est pas possible pour les pods `website` de se connecter à la base de donnée. Pour permettre cela, il est nécessaire de définir un service pour postgres.
 
-## Ajouter un template
+## Services
 
-Dans le TD précédent, nous avons vu comment définir une GatewayAPI pour accéder à une application depuis l'extérieur du cluster.
+> [!NOTE]
+> 
+> Dans notre cas d'usage, nous allons créer deux services, avec des usages différents
+> - Postgres : Ce service, à usage interne, permettra d'offrir une ip stable et un nom de domaine pour que le site puisse se connecter à la base de donnée 
+> - Website : Ce service aura pour rôle l'équilibrage de charge entre les deux réplicats de `website`, et de fournir un point d'entrée unique, stable, pour qu'on puisse y connecter une HTTPRoute
+>
 
-Reprenons la définition d'une HTTPRoute du TP précédent :
+### Postgres
 
-```yaml
-# httproute.yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: whoami
-spec:
-  parentRefs:
-    - name: traefik-gateway
-  hostnames:
-    - "whoami-gatewayapi.localhost"
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: whoami
-          port: 80
-```
+Créer un service pour notre base de donnée, nommé `postgres`. Pour rappel, notre base de donnée écoute sur le port `5432`, et notre site tentera de se connecter sur ce même port.
 
-Modifiez cette définition pour en faire un template pour notre application nginx. 
-Le paramétrage de ce template se fera de cette manière :
+Tester le service :
+- Vérifier que le service est bien créé et son état.
+- Vérifier que votre service est bien lié à vos pods. Indice: combien d'endpoints sont visibles lors d'un `kubectl describe` de votre service ?
+- Tester, depuis l'hôte, la connection à la base de donnée, en utilisant l'IP du service comme hostname.
+- Tester le même chose depuis un des conteneurs `website`.
+- Tester, depuis un des conteneurs `website`, la connection à la base de donnée, en utilisant le nom de domaine `postgres` comme hostname.
 
-```yaml
-# Dans values.yaml
-route:
-  hostname: "monsupersite.localhost"
-  path: "/site"
-```
+### Website
 
-# Partie 3 - Packager notre application
+Créer un service pour notre site web.
 
-Dossier `minecraft-app`
--> Chart Helm incomplet
-  -> Paramètres définis dans `values.yaml`
-  -> Aucun templates, seulement le fichier `_helpers.tpl`, et les notes de déploiement
+Tester le service :
+- Vérifier que le service est bien créé et son état.
+- Vérifier que votre service est bien lié à vos pods. Indice: combien d'endpoints sont visibles lors d'un `kubectl describe` de votre service ?
+- Tester, depuis l'hôte, à l'aide de `curl`, la connection au service. Rappel, la syntaxe est la suivante : `curl <IP>:<PORT>`
+- Tester depuis un navigateur, que le site est accessible via l'IP du service, et qu'il fonctionne.
 
-Procéder par étape : 
-définir déploiement du site (image website:v3 cherché dans votre registry)
-installer chart helm -> Vérifier statut déploiement et pods.
-Vérifier curl vers les IP des pods (attention, le site écoute sur le port 5000)
+## HTTPRoute
 
-définir déploiement de la BDD postgres
-Dans TD3, compose.yaml, on avait utilisé 
+Pour l'instant, notre site n'est pas accessible depuis l'extérieur du cluster.
+En vous appuyant sur le dernier TD, créez une route qui permette d'accéder à votre site web.
 
-```yaml
-env:
-  - name: ENV_VAR_NAME
-    value: ENV_VAR_VALUE
-```
+:tada: Vous savez désormais déployer une application à l'aide de Kubernetes ! 
 
-Avec kubernetes, on utilisera le mot clé `env` plutôt que `environment`
-Vérifier status des pods 
+# Aller plus loin
 
-Installer https://stackoverflow.com/questions/26911508/postgres-testing-database-connection-in-bash
-`apt update`
-`apt install -y postgresql-client`
-Tester connexion 
-
-`pg_isready -h <host_name>`  Depuis l'hôte, en utilisant l'IP du pod
-
-Créer le service psotgres
-
-Vérifier qu'il y a bien un endpoint
-
+- Volumes : ajouter un volume au pod `bdd`, pour que les données soient persistées. La gestion des volumes est par nature plus complexe avec Kubernetes, car deux pods qui partagent un volume ne sont pas forcément sur la même machine physique. On pourra regarder du côté des [Volumes Locaux](https://kubernetes.io/fr/docs/concepts/storage/volumes/#local) et des [HostPaths (équivalents de bind mounts dans docker)](https://kubernetes.io/fr/docs/concepts/storage/volumes/#hostpath)
+- CronJob : Mettre en place la sauvegarde de la base de données, comme vous avez pu le faire avec `db-utils` dans le TD3. Pour cela, on utilisera des [Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), qui permettent de créer un pod à usage unique, qui exécutera une tâche et se stoppera. Pour aller plus loin, on pourra creuser du côté des [CronJobs](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/), qui permettent de prévoir le lancement de Jobs à des dates/périodes prédéfinies.
 
 ## Comment nettoyer k3s 
 Si vous voulez repartir d'une configuration propre de k3s, vous pouvez suivre les étapes suivantes.
@@ -220,6 +190,20 @@ k3s-killall.sh
 \rm -rf /var/lib/kubelet
 ```
 
+# Installation de pg_isready
+
+## Installation
+
+`apt update`
+`apt install -y postgresql-client`
+
+## Utilisation
+
+Tester si une base de donnée postgres écoute sur un hôte `hostname` :
+
+`pg_isready -h <host_name>`
+
+En cas de succès, pg_isready indique : `<IP>:5432 - accepting connections`
 
 # Liste des commandes utiles
 ```
