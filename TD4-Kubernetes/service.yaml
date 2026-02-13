@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service
+spec:
+  selector:
+    name: website
+  ports:
+  - port: 5000
+    targetPort: 80

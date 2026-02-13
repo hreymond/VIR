@@ -1,0 +1,49 @@
+### Déploiement du TD4
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: demo-app
+#   namespace: pouet
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app: demo
+#   template:
+#     metadata:
+#       labels:
+#         app: demo
+#     spec:
+#       containers:
+#       - name: web
+#         image: nginx:stable
+#         ports:
+#         - containerPort: 80
+
+# Template du même déploiement
+# Paramètres :
+# - Nom de l'image
+# - Tag de l'image
+# - Nombre de réplicats
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name  }}
+  labels:
+    app: helm-demo
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: helm-demo
+  template:
+    metadata:
+      labels:
+        app: helm-demo
+    spec:
+      containers:
+      - name: web
+        image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: 80

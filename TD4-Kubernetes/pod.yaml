@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mon-super-pod
+spec:
+  containers:
+  - image: nginx
+    name: website
+    ports:
+    - containerPort: 5000
