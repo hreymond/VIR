@@ -102,6 +102,11 @@ Description de Helm
 - Gestionnaire de Packet
 - En pratique, quand on héberge une application, on ne va pas modifier les descripteurs yaml
 
+Installation :
+- `export KUBECONFIG=/etc/rancher/k3s/k3s.yaml`
+- Si clé K3S, rien à faire
+- Sinon, regarder : https://helm.sh/docs/intro/install/
+
 ## Chart Helm
 
 - Examinger les deployment et service 
@@ -173,6 +178,35 @@ Dossier `minecraft-app`
 -> Chart Helm incomplet
   -> Paramètres définis dans `values.yaml`
   -> Aucun templates, seulement le fichier `_helpers.tpl`, et les notes de déploiement
+
+Procéder par étape : 
+définir déploiement du site (image website:v3 cherché dans votre registry)
+installer chart helm -> Vérifier statut déploiement et pods.
+Vérifier curl vers les IP des pods (attention, le site écoute sur le port 5000)
+
+définir déploiement de la BDD postgres
+Dans TD3, compose.yaml, on avait utilisé 
+
+```yaml
+env:
+  - name: ENV_VAR_NAME
+    value: ENV_VAR_VALUE
+```
+
+Avec kubernetes, on utilisera le mot clé `env` plutôt que `environment`
+Vérifier status des pods 
+
+Installer https://stackoverflow.com/questions/26911508/postgres-testing-database-connection-in-bash
+`apt update`
+`apt install -y postgresql-client`
+Tester connexion 
+
+`pg_isready -h <host_name>`  Depuis l'hôte, en utilisant l'IP du pod
+
+Créer le service psotgres
+
+Vérifier qu'il y a bien un endpoint
+
 
 ## Comment nettoyer k3s 
 Si vous voulez repartir d'une configuration propre de k3s, vous pouvez suivre les étapes suivantes.
