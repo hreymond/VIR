@@ -2,6 +2,7 @@
 
 Objectif du TD :
 - :dart: Comprendre les dépôts locaux
+- :dart: Déployer une application multi-pods avec Kubernetes
 
 # Partie 1 : Registry
 Une image docker, podman, kubernetes (containerd) est stockée dans un repository. 
@@ -99,7 +100,16 @@ Le fichier à définir est le fichier `/etc/rancher/k3s/registries.yaml`. Dont l
 
 # Partie 2 : Déployer notre application
 
-Objectif : déployer l'application du TD3 - Multicontainers
+Désormais, nous avons tout les outils nécessaires au déploiement de notre site web "minecraft".
+Par rapport au déploiement mis en place au TD3 à l'aide de docker-compose, le déploiement d'aujourd'hui :
+- Contiendra deux réplicats de notre site web, et un load balancer pour équilibrer la charge entre les deux réplicats.
+- Sera surveillé en permanence par Kube, qui veillera au bon fonctionnement de nos pods (Self-Healing)
+- Permettra, lors de prochains TDs, d'héberger les réplicats sur des noeuds différents, et donc d'offrir une redondance multi-site
+- Permettra d'augmenter très simplement le nombre de réplicats, à l'aide de la commande `kubectl scale`
+
+À vous de jouer ! Créez les objets Kubernetes (Deployments, Services, HttpRoute) nécessaires à l'hébergement du site `website:v3` et de sa base de donnée.
+
+Si vous souhaitez être guidé dans cette tâche, nous avons détaillé les grandes étapes à suivre ci-dessous. Vous pouvez aussi, si vous le sentez, vous passer de cette aide. Aussi, n'hésitez pas à demander de l'aide à vos chargés de TD.
 
 ## Déploiements
 
@@ -107,7 +117,7 @@ Objectif : déployer l'application du TD3 - Multicontainers
 
 Créer un déploiement pour héberger deux réplicats de notre site :
 
-- Si nécessaire, reconstruire l'image website:v3
+- Si nécessaire, reconstruire l'image `website:v3`
 - Tagger l'image, et la pousser dans le registry créé précédemment
 - Créer le déploiement correspondant à notre site (image website:v3, deux réplicats)
 
@@ -132,7 +142,7 @@ containers:
 
 Tester le déploiement :
 - Vérifier que le pod est bien créé, et son état. Si nécessaire, inspecter les logs du pod à l'aide de `kubectl logs <POD_ID>`.
-- Tester, depuis l'hôte, la connection à la base de donnée `pg_isready -h <host_name>`, en utilisant l'adresse IP du pod comme hostname.  L'installation de l'outil `pg_isready` est détaillée en fin de TD [Lien](#-installation-de-pg_isready).
+- Tester, depuis l'hôte, la connection à la base de donnée `pg_isready -h <host_name>`, en utilisant l'adresse IP du pod comme hostname.  L'installation de l'outil `pg_isready` est détaillée en fin de TD [Lien](#installation-de-pg_isready).
 
 Pour le moment, il n'est pas possible pour les pods `website` de se connecter à la base de donnée. Pour permettre cela, il est nécessaire de définir un service pour postgres.
 
@@ -194,8 +204,8 @@ k3s-killall.sh
 
 ## Installation
 
-`apt update`
-`apt install -y postgresql-client`
+- `apt update`
+- `apt install -y postgresql-client`
 
 ## Utilisation
 
