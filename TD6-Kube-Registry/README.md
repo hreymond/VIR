@@ -118,7 +118,7 @@ Si vous souhaitez être guidé dans cette tâche, nous avons détaillé les gran
 Créer un déploiement pour héberger deux réplicats de notre site :
 
 - Si nécessaire, reconstruire l'image `website:v3`
-- Tagger l'image, et la pousser dans le registry créé précédemment
+- Tagger l'image, et la pousser dans le registry créée précédemment
 - Créer le déploiement correspondant à notre site (image website:v3, deux réplicats)
 
 Tester le déploiement :
@@ -150,9 +150,9 @@ Pour le moment, il n'est pas possible pour les pods `website` de se connecter à
 
 > [!NOTE]
 > 
-> Dans notre cas d'usage, nous allons créer deux services, avec des usages différents
-> - Postgres : Ce service, à usage interne, permettra d'offrir une ip stable et un nom de domaine pour que le site puisse se connecter à la base de donnée 
-> - Website : Ce service aura pour rôle l'équilibrage de charge entre les deux réplicats de `website`, et de fournir un point d'entrée unique, stable, pour qu'on puisse y connecter une HTTPRoute
+> Dans notre cas d'usage, nous allons créer deux services, avec des usages différents :
+> - Postgres : Ce service, à usage interne, permettra d'offrir une ip stable et un nom de domaine pour que le site puisse se connecter à la base de donnée.
+> - Website : Ce service aura pour rôle l'équilibrage de charge entre les deux réplicats de `website`, et de fournir un point d'entrée unique, stable, pour que l'on puisse y connecter une HTTPRoute.
 >
 
 ### Postgres
@@ -162,7 +162,7 @@ Créer un service pour notre base de donnée, nommé `postgres`. Pour rappel, no
 Tester le service :
 - Vérifier que le service est bien créé et son état.
 - Vérifier que votre service est bien lié à vos pods. Indice: combien d'endpoints sont visibles lors d'un `kubectl describe` de votre service ?
-- Tester, depuis l'hôte, la connection à la base de donnée, en utilisant l'IP du service comme hostname.
+- Tester, depuis l'hôte, la connection à la base de donnée, en utilisant l'IP du service comme hostname (à l'aide de `pg_isready`) .
 - Tester le même chose depuis un des conteneurs `website`.
 - Tester, depuis un des conteneurs `website`, la connection à la base de donnée, en utilisant le nom de domaine `postgres` comme hostname.
 
