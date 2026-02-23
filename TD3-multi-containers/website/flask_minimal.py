@@ -14,10 +14,10 @@ conn : psycopg2.connection = None
 def get_db_connection() -> psycopg2.connection:
     global conn
 
-    conn = psycopg2.connect(host="postgres",
-                        database="postgres",
-                        user="postgres",
-                        password="admin")
+    conn = psycopg2.connect(host=os.environ.get("DB_HOSTNAME", "postgres"),
+                        database=os.environ.get("DB_NAME", "postgres"),
+                        user=os.environ.get("DB_USER", "postgres"),
+                        password=os.environ.get("DB_PASSWORD", "admin"))
     
     with conn.cursor() as cur:
         # Create table stats if it does not exist

@@ -102,3 +102,17 @@ Dossier `minecraft-app`
 -> Chart Helm incomplet
   -> Paramètres définis dans `values.yaml`
   -> Aucun templates, seulement le fichier `_helpers.tpl`, et les notes de déploiement
+
+1. Modifier les manifests Helm du précédent TD pour pouvoir paramétrer les valeurs suivantes, définies dans `values.yaml` :
+
+Lancer : est-ce que ça marche ?
+
+Upgrade + Override les valeurs par défaut, hostname à "steve.localhost" -> Plus simple que d'aller fouiller dans les manifests ! 
+
+2. Lancer une deuxième release 
+
+Conflits ! "service postgres already exists !" 
+Une limite supplémentaire de gérer les manifests à la main : Besoin de copier les manifests et de paramétrer à chaque fois que l'on veut une instances différente de notre site.
+
+Heureusement, Helm fourni des helpers pour générer des noms à partir du nom de la release
+
