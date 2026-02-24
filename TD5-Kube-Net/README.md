@@ -213,7 +213,7 @@ Par défaut, l'outil présente une vue des pods déployés. Pour changer le type
 
 L'outil fournit aussi plusieurs options (décrites en haut de la fenêtre) pour examiner les ressources (`d` pour décrire la ressource, `l` pour obtenir les logs du deploiement/pod/conteneur, `s` pour obtenir un shell dans un conteneur)
 
-Dans la suite des TDs, cet outil permettra un visualisation plus confortable des ressources.
+Dans la suite des TDs, cet outil permettra une visualisation plus confortable des ressources.
 
 # Liste des commandes utiles
 ```
