@@ -202,6 +202,19 @@ Pour cela, on utilisera l'option `-H` de `curl`, qui permet de spécifier le con
 
 `curl -H "Host: <Nom de domaine de whoami>" <IP serveur>`
 
+# K9S
+
+Jusqu'à présent, pour examiner les ressources Kubernetes actives, nous avons utilisé les commande `kubectl get`/`kubectl describe` .
+Sur la clé k3s du département, il existe un autre outil, nommé `k9s`, qui permet d'analyser en temps réel les différents objets kubernetes sur votre cluster.
+
+Pour utiliser cet outil, lancez la commande suivante : `sudo k9s --kubeconfig /etc/rancher/k3s/k3s.yaml`
+
+Par défaut, l'outil présente une vue des pods déployés. Pour changer le type de ressource affiché, il est possible de changer de vue avec `:` (ex, taper `:deploy` pour lister les déploiements). 
+
+L'outil fournit aussi plusieurs options (décrites en haut de la fenêtre) pour examiner les ressources (`d` pour décrire la ressource, `l` pour obtenir les logs du deploiement/pod/conteneur, `s` pour obtenir un shell dans un conteneur)
+
+Dans la suite des TDs, cet outil permettra un visualisation plus confortable des ressources.
+
 # Liste des commandes utiles
 ```
 kubectl get deployment
