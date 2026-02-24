@@ -1,5 +1,5 @@
 apiVersion: v2
-name: helm-app
+name: superchart
 description: Exemple d'un Chart Helm minimal
 type: application
 # This is the chart version. This version number should be incremented each time you make changes

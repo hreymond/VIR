@@ -29,7 +29,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name  }}
+  name: {{ .Chart.Name  }}-{{ .Release.Name  }}
   labels:
     app: helm-demo
 spec:

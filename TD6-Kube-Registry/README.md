@@ -221,8 +221,8 @@ podman pull <image:tag>  ---> podman pull docker.io/traefik/whoami
 podman run -p <portHote:portGuest> <nomImage> --> podman run -p 5010:5000 registry:2 
 
 
-kubectl get deployement
-kubectl delete deployement <deploymentname>
+kubectl get deployment
+kubectl delete deployment <deploymentname>
 
 kubectl apply -f <descripteur.yaml>
 kubectl describe pod <podId>
