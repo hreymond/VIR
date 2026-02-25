@@ -2,7 +2,15 @@
 
 Maintenant que notre site peut être déployé sur Kubernetes, on souhaite le partager à notre communauté.
 
+# Partie 0 - Préliminaire
+La clé k3s, n'utilise plus traefik par défaut (--disable traefik). Installez traefik en lançant le script suivant :  
+```bash
+sudo su -
+/home/user/startTraefik.sh
+```
 
+N'hésitez-pas à regarder le contenu du script `startTraefik.sh`.
+Pour info, si vous voulez connaitre le type d'un fichier, vous avez la commande `file <xxx>`.
 
 # Partie 1 - Helm : Un gestionnaire de paquet comme les autres ?
 
