@@ -4,9 +4,12 @@
 
 # Deployment variables
 replicaCount: 1
-imagetag: v3
+image:
+  repository: localhost:5000
+  namespace: tc
+  name: website
+  tag: v3
 
 # Route variables
 route:
   hostname: "minecraft.localhost"
-  path: "/minecraft"

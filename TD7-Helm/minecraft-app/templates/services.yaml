@@ -1,0 +1,29 @@
+# Service pour la BDD
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres 
+spec:
+  selector:
+    app: db
+    {{- include "minecraft.labels" . | nindent 4 }}
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+# Service pour le site web
+# Attention à bien mapper le port 5000 !
+apiVersion: v1
+kind: Service
+metadata:
+  name: websvc
+spec:
+  selector:
+    app: web
+    {{- include "minecraft.labels" . | nindent 4 }}
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+  type: ClusterIP

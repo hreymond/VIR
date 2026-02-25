@@ -1,30 +1,23 @@
 # TD7 - Packaging with Helm
 
-Maintenant que notre site peut être déployé sur Kubernetes, on souhaite le partager à notre communauté.
-
-# Partie 0 - Préliminaire
-La clé k3s, n'utilise plus traefik par défaut (--disable traefik). Installez traefik en lançant le script suivant :  
-```bash
-sudo su -
-/home/user/startTraefik.sh
-```
-
-N'hésitez-pas à regarder le contenu du script `startTraefik.sh`.
-Pour info, si vous voulez connaitre le type d'un fichier, vous avez la commande `file <xxx>`.
+Objectifs : 
+- :dart: Prendre en main l'outil Helm
+- :dart: Packager une application Kubernetes sous la forme d'un Chart Helm
 
 # Partie 1 - Helm : Un gestionnaire de paquet comme les autres ?
 
-Lorsque l'on souhaite installer des applications et leur dépendances de manière automatique sur nos machines personnelles, on se repose souvent sur des gestionnaires de paquets comme APT (debian), PIP (python). Dans l'écosystème *Kubernetes*, l'outil de référence pour packager et partager des configurations Kubernetes se nomme *Helm*. Par exemple, une seule commande `helm install` permet d'installer sur un cluster des utilitaires comme Traefik (cf TD5), ou des applications comme nextcloud (clone ouvert de google docs).
+Lorsque l'on souhaite installer des applications et leur dépendances de manière automatique sur nos machines personnelles, on se repose souvent sur des gestionnaires de paquets comme APT (debian) ou PIP (python). 
 
-Nous allons l'utiliser pour partager notre site.
+Dans l'écosystème *Kubernetes*, l'outil de référence pour packager et partager des configurations se nomme *Helm*. Par exemple, une seule commande `helm install` permet d'installer sur un cluster des utilitaires comme Traefik (cf TD5), ou des applications comme nextcloud (clone ouvert de google docs).
 
+Nous allons l'utiliser pour packager notre site, et le partager.
 
 ## Helm - Concepts importants
 
 Dans le langage Helm, un paquet est appelé un *Chart*. Un *Chart* est un ensemble de fichiers qui décrivent des ressources Kubernetes.
-Cependant, par rapport aux gestionnaires de paquet actuels, Helm permet :
-- de paramétrer l'installation d'un Chart, en modifiant sa *configuration*
-- d'installer plusieurs instance d'un même Chart, avec des configurations différentes. Chaque installation d'un Chart donne lieu à la création d'une *Release*
+Cependant, par rapport aux gestionnaires de paquet classiques, Helm permet :
+- de paramétrer l'installation d'un paquet (Chart), en modifiant sa *configuration*
+- d'installer plusieurs instance d'un même paquet (Chart), avec des configurations différentes. Chaque installation d'un Chart donne lieu à la création d'une *Release*
 
 ---
 
@@ -34,7 +27,7 @@ Exemple de Release
 
 Deux *Releases*, `dev` et `prod`,  même chart `my-chart`, configuration différente 
 
-![Concepts Helm](helm-concepts.png)
+![Concepts Helm](figures/helm-concepts.png)
 
 ## Chart Helm
 
@@ -65,7 +58,7 @@ Toutes les balises vont être remplacées par des valeurs définies dans le Char
 - `.Values` : fait référence aux éléments de configuration définis dans le fichier `values.yaml`. :question: Par quoi va être remplacé la balise `{{ .Values.replicaCount }}` ?
 
 
-Essayons maintenant de déployer les ressources déclarées dans le dossier `templates`, en installant le Chart.
+Déployons les ressources déclarées dans le dossier `templates`, en installant le Chart.
 
 Si vous utilisez la clé K3S fournie par le département, helm y est déjà installé. Sinon, les instructions sont disponibles [ici](https://helm.sh/docs/intro/install/).
 
@@ -91,102 +84,127 @@ Vérifiez via `kubectl` qu'il existe un déploiement correspondant à ce que vou
 
 ## Paramétrage d'un Chart
 
-On a utilisé la config par défaut, définie par values.yaml
+Par défaut, si lorsque l'on installe un Chart, la configuration par défaut (définie dans `values.yaml`) est utilisée. Seulement, il est courant de vouloir personaliser la configuration d'une Release.  
 
-En général, on veut personnaliser le chart.
+Pour ça, il existe deux options :
 
-Pour ça, deux options : passer les paramètres en liste de commande, ou fournir un fichier values, qui fusionnera avec le fichier par défaut.
+- Passer les paramètres en ligne de commande : `helm install <name> <chart> --set key1=val1,key2=val2`
+- Fournir un fichier de valeur, qui fusionnera avec le fichier `values.yaml` : `helm install <name> <chart> --values config.yaml`
 
-- En ligne de commande : `helm install <name> <chart> --set key1=val1,key2=val2`
-- Via un fichier de valeurs : `helm install <name> <chart> --values config.yaml`
-
-Installer une seconde release de notre application, appelée `toto2`, qui possèdera deux réplicas de notre pod, via la ligne de commande.
+Installez une seconde release de notre application, appelée `toto2`, qui possèdera deux réplicas de notre pod, via la ligne de commande.
 Via un fichier de valeurs, installer une troisième release appelée `toto3`, avec trois réplicas.
-
 
 ## Mise à jour d'un Chart
 
-Mise à jour chart, solution la plus basique :
-- Désinstallation : `helm uninstall`
-- Installation : `helm install`
+Il est courant d'avoir à mettre à jour une Release, pour changer la configuration des ressources Kubernetes (image d'un pod, nombre de réplicas).
 
-Problème ! 
+Une solution naïve consiste à réinstaller la Release :
+- Désinstallez la release `toto` : `helm uninstall toto`
+- Installation à nouveau la release, avec 4 réplicas: `helm install toto --set replicaCount: 4`
 
+Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes (pods, services, ...), et notre site devient indisponible, jusqu'à ce que la nouvelle release soit crée. De plus, en cas d'erreur, le retour en arrière peut être complexe.
 
-:question:  `helm-app.fullname` est une macro définie dans `_helpers.tpl`. Retrouvez la. De quoi est composé le full-name ?
+*Helm* fournit aussi la commande `upgrade`, qui permet de mettre à jour les ressources Kubernetes. En passant de 1 à 4 réplicats, Kube créera seulement 3 pods.
 
-```yaml
-# Utilisations des "valeurs"
-    spec:
-      containers:
-      - name: web
-        image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
-        ports:
-        - containerPort: 80
-```
+`helm upgrade <release> <chart>` 
 
-:question: Trouvez dans les fichiers de template à quoi correspondent les différentes options présentes dans le `values.yaml` ?
+Mettre à jour le nombre de réplicas de la release `toto` à 2 en utilisant la commande upgrade. Upgrade de la version de la release
+Mettre à jour le tag de l'image nginx pour un tag invalide, comme `fauxlabel` (image.tag dans `values.yaml`)
 
+-> Update de version de release
 
-## Déploiement 
+helm log permet de voir l'historique des révisions
 
+Plugin `helm diff` permet de voir les différences entre deux releases
+helm plugin install https://github.com/databus23/helm-diff
 
-## Ajouter un template
+## Templating
 
-Dans le TD précédent, nous avons vu comment définir une GatewayAPI pour accéder à une application depuis l'extérieur du cluster.
+Ajouter un nouveau template, basé sur l'httpRoute du TD 4 précédent 
 
-Reprenons la définition d'une HTTPRoute du TP précédent :
+Rappel, il faut avant installer traefik (en superutilisateur):
+
+`helm repo add traefik https://traefik.github.io/charts`
+`helm install traefik -f values.yaml`
 
 ```yaml
 # httproute.yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: whoami
+  name: helmroute
 spec:
   parentRefs:
     - name: traefik-gateway
   hostnames:
-    - "whoami-gatewayapi.localhost"
+    - "helm.localhost"
   rules:
     - matches:
         - path:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: whoami
+        - name: {{ include "helm-app.fullname" . }}-service
           port: 80
 ```
 
-Modifiez cette définition pour en faire un template pour notre application nginx. 
-Le paramétrage de ce template se fera de cette manière :
+- Rajouter cette route HTTP aux templates du Chart helm-app.
+- Mettre à jour la release toto avec le Chart mis à jour. 
+- Verifier que la route nommée `helmroute` est bien créée.
+
+- Mettre à jour la release `toto2` avec le Chart mis à jour. 
+
+:question: La mise à jour ne fonctionne pas, vous obtenez un message d'erreur. Que dit ce dernier ? Comment résoudre le problème ?
+
+### Macros : générer des noms/labels adaptés pour chaque release
+
+Pour permettre à deux Releases d'un même Chart de coexister sur un même cluster, il est nécessaire que les noms, ainsi que les labels des ressources Kubernetes soit différent d'une release à une autre.
+
+Pour cela, on pourrait utiliser dans notre template la variable `.Release.name`, mais on passe généralement par des macros, définies dans le fichier `helpers.tpl`.
+
+Pour utiliser une macro Helm, on utilise `{{ include "<nom macro>" . }}`. Un exemple d'utilisation est celui là :  
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helm-app.fullname" . }}-service
+```
+
+:question: `helm-app.fullname` est une macro définie dans `_helpers.tpl`. Retrouvez la. De quoi est composé ce fullname ? Quel sera le nom de notre service ? Verifier-le via `kubectl`. 
+
+- Modifier le nom de votre Route pour qu'elle dépende du nom de la release.
+- Installer ou mettre à jour deux release `toto` et `toto2`. Vérifier que le conflit lié au nom de la route a disparu.
+
+### Paramétrer un template
+
+Maintenant que l'on est capable de générer des HTTPRoute propres à chaque release, paramétrons-le. Modifiez le template httproute.yaml du chart helm-app pour paramétrer le nom d'hôte de notre site.
+
+La configuration dans `values.yaml` devra être la suivante :
 
 ```yaml
 # Dans values.yaml
 route:
   hostname: "monsupersite.localhost"
-  path: "/site"
 ```
+
+Mettre à jour vos release de `helm-app` pour utiliser des noms d'hôtes différents : `toto.localhost` et `totov2.localhost`.
 
 # Partie 2 - Packager notre application
 
-Dossier `minecraft-app`
--> Chart Helm incomplet
-  -> Paramètres définis dans `values.yaml`
-  -> Aucun templates, seulement le fichier `_helpers.tpl`, et les notes de déploiement
+Dans le dossier `minecraft-app`, nous avons fourni la structure d'un chart Helm pour le site minecraft présenté dans les TDs précédents.
 
-1. Modifier les manifests Helm du précédent TD pour pouvoir paramétrer les valeurs suivantes, définies dans `values.yaml` :
+Ce chart est incomplet. Nous avons simplement fait en sorte de générer des labels/sélecteurs propre à chaque release. C'est à vous de : 
+- Modifier les noms des déploiements, des services, de la httpRoute pour qu'il soient unique pour chaque release. Attention, il faudra modifier les références à ses noms, s'il en existe. En particulier, le site utilisait le nom de domaine "postgres" pour ce connecter à la base de donnée. Désormais, une variable d'environnement "DB_HOSTNAME" est définie dans le déploiement. Cette variable devra correspondre au nom d'hôte du service lié à la BDD.
+- Ajouter les paramètres définis dans `values.yaml` aux templates Kubernetes.
 
-Lancer : est-ce que ça marche ?
+Pour tester vos configurations, il existe la commande `helm template <release> <chart>`, qui permet de visualiser les descripteurs Yaml une fois les balises remplacées.
 
-Upgrade + Override les valeurs par défaut, hostname à "steve.localhost" -> Plus simple que d'aller fouiller dans les manifests ! 
+Pour éviter d'avoir à relancer une registry locale, vous pouvez utiliser une image publique du site : [https://hub.docker.com/r/hreymond/virwebsite](https://hub.docker.com/r/hreymond/virwebsite)
 
-2. Lancer une deuxième release 
+:question: Dans le cas de cette image, sauriez vous identifier son *registry*, son *namespace*, son nom et son tag ?
 
-Conflits ! "service postgres already exists !" 
-Une limite supplémentaire de gérer les manifests à la main : Besoin de copier les manifests et de paramétrer à chaque fois que l'on veut une instances différente de notre site.
-
-Heureusement, Helm fourni des helpers pour générer des noms à partir du nom de la release
+Comme d'habitude, n'hésitez pas à appeler votre chargé de TD si vous avez des questions.
 
 # Liens
 

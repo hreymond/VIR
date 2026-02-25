@@ -3,7 +3,6 @@
 # kind: Deployment
 # metadata:
 #   name: demo-app
-#   namespace: pouet
 # spec:
 #   replicas: 3
 #   selector:
@@ -31,15 +30,18 @@ kind: Deployment
 metadata:
   name: {{ .Chart.Name  }}-{{ .Release.Name  }}
   labels:
+    {{- include "helm-app.labels" . | nindent 4 }}
     app: helm-demo
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      {{- include "helm-app.labels" . | nindent 6 }}
       app: helm-demo
   template:
     metadata:
       labels:
+        {{- include "helm-app.labels" . | nindent 8 }}
         app: helm-demo
     spec:
       containers:
