@@ -4,6 +4,17 @@ Objectifs :
 - :dart: Prendre en main l'outil Helm
 - :dart: Packager une application Kubernetes sous la forme d'un Chart Helm
 
+# Partie 0 - Installation préliminaire
+La nouvelle version de k3s, est installé sans le support de traefik par défaut. Nous vous suggérons de passer root et de lancer l'installation avec la commande suivante.
+```bash
+sudo su -
+/home/user/startTraefik.sh
+```
+L'installation met à disposition le dashboard qui devient alors accessible sur via `http://dashboard.localhost/dashboard/`.
+
+N'hésitez-pas à regarder ce que fait la commande. 
+:pushpin: Si vous souhaitez connaitre ce que contient un fichier sans l'ouvrir / le type de fichier vous pouvez utiliser la commande `file <fichier>`.
+
 # Partie 1 - Helm : Un gestionnaire de paquet comme les autres ?
 
 Lorsque l'on souhaite installer des applications et leur dépendances de manière automatique sur nos machines personnelles, on se repose souvent sur des gestionnaires de paquets comme APT (debian) ou PIP (python). 
@@ -213,6 +224,13 @@ Comme d'habitude, n'hésitez pas à appeler votre chargé de TD si vous avez des
 # Commandes utiles
 
 ```bash
+file <fichier>
+helm repo add <nom> <url>
+helm repo update
+
+helm install <name> <domain/sub> <options>
+helm list
+
 kubectl get deployment
 kubectl delete deployment <deploymentname>
 
