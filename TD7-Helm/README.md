@@ -124,7 +124,7 @@ Mettre à jour le tag de l'image nginx pour un tag invalide, comme `fauxlabel` (
 
 -> Update de version de release
 
-helm log permet de voir l'historique des révisions
+`helm history <chart>` permet de voir l'historique des révisions
 
 Plugin `helm diff` permet de voir les différences entre deux releases
 helm plugin install https://github.com/databus23/helm-diff
@@ -133,10 +133,8 @@ helm plugin install https://github.com/databus23/helm-diff
 
 Ajouter un nouveau template, basé sur l'httpRoute du TD 4 précédent 
 
-Rappel, il faut avant installer traefik (en superutilisateur):
+Rappel, il faut avant installer traefik (en superutilisateur). Si vous ne l'avez pas fait au début de séance, il est encore temps de le faire. 
 
-`helm repo add traefik https://traefik.github.io/charts`
-`helm install traefik -f values.yaml`
 
 ```yaml
 # httproute.yaml
@@ -228,7 +226,8 @@ file <fichier>
 helm repo add <nom> <url>
 helm repo update
 
-helm install <name> <domain/sub> <options>
+helm install <releaseName> ./<localfolder>
+helm install <releasename> <repoName>/<chartName>
 helm list
 
 kubectl get deployment
