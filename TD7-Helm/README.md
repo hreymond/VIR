@@ -95,7 +95,7 @@ Vérifiez via `kubectl` qu'il existe un déploiement correspondant à ce que vou
 
 ## Paramétrage d'un Chart
 
-Par défaut, si lorsque l'on installe un Chart, la configuration par défaut (définie dans `values.yaml`) est utilisée. Seulement, il est courant de vouloir personaliser la configuration d'une Release.  
+Lorsque l'on installe un Chart, la configuration par défaut (définie dans `values.yaml`) est utilisée. Il est courant de vouloir personaliser la configuration d'une Release.  
 
 Pour ça, il existe deux options :
 
