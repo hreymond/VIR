@@ -230,6 +230,8 @@ helm install <releaseName> ./<localfolder>
 helm install <releasename> <repoName>/<chartName>
 helm list
 
+helm template --debug <releaseName> <chartRef>
+
 kubectl get deployment
 kubectl delete deployment <deploymentname>
 
