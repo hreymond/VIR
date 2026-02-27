@@ -16,7 +16,7 @@ Nous allons l'utiliser pour partager notre site.
 Dans le langage Helm, un paquet est appelé un *Chart*. Un *Chart* est un ensemble de fichiers qui décrivent des ressources Kubernetes.
 Cependant, par rapport aux gestionnaires de paquet actuels, Helm permet :
 - de paramétrer l'installation d'un Chart, en modifiant sa *configuration*
-- d'installer plusieurs instance d'un même Chart, avec des configurations différentes. Chaque installation d'un Chart donne lieu à la création d'une *Release*
+- d'installer plusieurs instance d'un même Chart, avec des configurations différentes. Chaque installation d'un Chart donne lieue à la création d'une *Release*
 
 ---
 
