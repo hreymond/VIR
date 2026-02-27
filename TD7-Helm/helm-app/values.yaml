@@ -10,5 +10,5 @@ image:
 
 # Service variables
 service:
-  port: 5000
+  port: 80
 

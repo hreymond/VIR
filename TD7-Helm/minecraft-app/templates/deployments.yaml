@@ -1,0 +1,56 @@
+# Déploiement du site
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+      {{- include "minecraft.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "minecraft.labels" . | nindent 8 }}
+        app: web
+    spec:
+      containers:
+        - name: web
+          # Pour que l'image soit accessible, il faut que
+          # - le registry du début du TD soit lancé
+          # - l'image website:v3 soit push, comme dans le début du TD avec whoami
+          # - Indiquer le registry/le namespace/le nom de l'image. website:v3 ne suffit pas
+          image: "localhost:5000/tc/website:v3"
+          ports:
+          - containerPort: 5000
+          env:
+            - name: DB_HOSTNAME
+              value: postgres
+---
+# Déploiement de la BDD
+# Penser à config la variables d'environnement POSTGRES_PASSWORD
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+      {{- include "minecraft.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "minecraft.labels" . | nindent 8 }}
+        app: db
+    spec:
+      containers:
+        - name: db
+          image: postgres
+          ports:
+          - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: admin
