@@ -12,7 +12,8 @@ sudo su -
 ```
 L'installation met à disposition le dashboard qui devient alors accessible sur via `http://dashboard.localhost/dashboard/`.
 
-N'hésitez-pas à regarder ce que fait la commande. 
+N'hésitez-pas à regarder ce que fait la commande.
+
 :pushpin: Si vous souhaitez connaitre ce que contient un fichier sans l'ouvrir / le type de fichier vous pouvez utiliser la commande `file <fichier>`.
 
 # Partie 1 - Helm : Un gestionnaire de paquet comme les autres ?
@@ -39,7 +40,7 @@ Exemple de Release
 
 Deux *Releases*, `dev` et `prod`,  même chart `my-chart`, configuration différente 
 
-![Concepts Helm](figures/helm-concepts.png)
+![Concepts Helm](/figures/helm-concepts.png)
 
 ## Chart Helm
 
@@ -112,9 +113,9 @@ Il est courant d'avoir à mettre à jour une Release, pour changer la configurat
 
 Une solution naïve consiste à réinstaller la Release :
 - Désinstallez la release `toto` : `helm uninstall toto`
-- Installation à nouveau la release, avec 4 réplicas: `helm install toto --set replicaCount: 4`
+- Installation à nouveau la release, avec 4 réplicas: `helm install toto --set replicaCount=4`
 
-Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes (pods, services, ...), et notre site devient indisponible, jusqu'à ce que la nouvelle release soit crée. De plus, en cas d'erreur, le retour en arrière peut être complexe.
+Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes (pods, services, ...), et notre site devient indisponible, jusqu'à ce que la nouvelle release soit créée. De plus, en cas d'erreur, le retour en arrière peut être complexe.
 
 *Helm* fournit aussi la commande `upgrade`, qui permet de mettre à jour les ressources Kubernetes. En passant de 1 à 4 réplicats, Kube créera seulement 3 pods.
 
@@ -159,7 +160,7 @@ spec:
 ```
 
 - Rajouter cette route HTTP aux templates du Chart helm-app.
-- Mettre à jour la release toto avec le Chart mis à jour. 
+- Mettre à jour la release `toto` avec le Chart mis à jour. 
 - Verifier que la route nommée `helmroute` est bien créée.
 
 - Mettre à jour la release `toto2` avec le Chart mis à jour. 
@@ -188,7 +189,7 @@ metadata:
 
 ### Paramétrer un template
 
-Maintenant que l'on est capable de générer des HTTPRoute propres à chaque release, paramétrons-le. Modifiez le template httproute.yaml du chart helm-app pour paramétrer le nom d'hôte de notre site.
+Maintenant que l'on est capable de générer des HTTPRoute propres à chaque release, paramétrons-les. 
 
 La configuration dans `values.yaml` devra être la suivante :
 
@@ -198,13 +199,16 @@ route:
   hostname: "monsupersite.localhost"
 ```
 
+Modifiez le template `httproute.yaml` du chart helm-app pour paramétrer le nom d'hôte de notre site.
+
+
 Mettre à jour vos release de `helm-app` pour utiliser des noms d'hôtes différents : `toto.localhost` et `totov2.localhost`.
 
 # Partie 2 - Packager notre application
 
 Dans le dossier `minecraft-app`, nous avons fourni la structure d'un chart Helm pour le site minecraft présenté dans les TDs précédents.
 
-Ce chart est incomplet. Nous avons simplement fait en sorte de générer des labels/sélecteurs propre à chaque release. C'est à vous de : 
+Ce chart est incomplet. Nous avons simplement fait en sorte de générer des labels/sélecteurs propre à chaque release. C'est à vous de: 
 - Modifier les noms des déploiements, des services, de la httpRoute pour qu'il soient unique pour chaque release. Attention, il faudra modifier les références à ses noms, s'il en existe. En particulier, le site utilisait le nom de domaine "postgres" pour ce connecter à la base de donnée. Désormais, une variable d'environnement "DB_HOSTNAME" est définie dans le déploiement. Cette variable devra correspondre au nom d'hôte du service lié à la BDD.
 - Ajouter les paramètres définis dans `values.yaml` aux templates Kubernetes.
 
