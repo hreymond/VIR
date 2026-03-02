@@ -121,19 +121,20 @@ Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes 
 
 `helm upgrade <release> <chart>` 
 
-Mettre à jour le nombre de réplicas de la release `toto` à 2 en utilisant la commande upgrade. Upgrade de la version de la release
+Mettre à jour le nombre de réplicas de la release `toto` à 2 en utilisant la commande `helm upgrade`. 
+Vous observerez que la REVISION de la release est passée de 1 à 2. 
 Mettre à jour le tag de l'image nginx pour un tag invalide, comme `fauxlabel` (image.tag dans `values.yaml`)
+La REVISION de la release passe de 2 à 3. :question:  À l'aide de `kubectl/k9s`, comment pouvez-vous diagnostiquer que l'image est invalide ?
 
--> Update de version de release
+D'autres commandes/outils permettent de diagnostiquer l'état d'une release. Nous ne les verrons pas dans ce cours,  mais ils sont présentés en [annexe](#outils-de-diagnostic-helm). 
 
-`helm history <chart>` permet de voir l'historique des révisions
+Pour revenir à un état précédent de notre release, il existe commande `helm rollback <RELEASE> [REVISION]`.
 
-Plugin `helm diff` permet de voir les différences entre deux releases
-helm plugin install https://github.com/databus23/helm-diff
+Remettez la release `toto` dans son état stable (avant l'ajout du faux label) à l'aide de l'outil `rollback`.
 
 ## Templating
 
-Ajouter un nouveau template, basé sur l'httpRoute du TD 4 précédent 
+Maintenant que vous maitrisez les commandes de base *Helm*, c'est à vous d'ajouter vos propres templates. Nous allons ajouter un template pour l'httpRoute du TD 4. 
 
 Rappel, il faut avant installer traefik (en superutilisateur). Si vous ne l'avez pas fait au début de séance, il est encore temps de le faire. 
 
@@ -223,6 +224,17 @@ Comme d'habitude, n'hésitez pas à appeler votre chargé de TD si vous avez des
 # Liens
 
 - [Documentation du templating Helm](https://helm.sh/docs/chart_template_guide/)
+
+# Outils de diagnostic Helm
+
+- `helm history <release>` permet de voir l'historique des révisions déployées
+- `helm get values <release>` permet de voir les paramètres de la release fournis par l'utilisateur
+- `helm get values <release> --all` permet de voir les paramètres de la release calculés (valeurs par défaut + valeurs données par l'utilisateur)
+- `helm template 
+- Le plugin `helm diff` permet de voir les différences de configuration entre deux releases
+  - Installation : `helm plugin install https://github.com/databus23/helm-diff`
+  - Documentation : [https://github.com/databus23/helm-diff](https://github.com/databus23/helm-diff)
+- `helm status <release>` permet de retrouver le résumé de déploiement affiché après un `helm install` ou `helm upgrade`
 
 # Commandes utiles
 
