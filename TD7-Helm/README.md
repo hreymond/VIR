@@ -123,7 +123,7 @@ Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes 
 
 Mettre à jour le nombre de réplicas de la release `toto` à 2 en utilisant la commande `helm upgrade`. 
 Vous observerez que la REVISION de la release est passée de 1 à 2. 
-Mettre à jour le tag de l'image nginx pour un tag invalide, comme `fauxlabel` (image.tag dans `values.yaml`)
+Mettre à jour le tag de l'image nginx souhaité pour un tag invalide, comme `fauxlabel` (image.tag dans `values.yaml`)
 La REVISION de la release passe de 2 à 3. :question:  À l'aide de `kubectl/k9s`, comment pouvez-vous diagnostiquer que l'image est invalide ?
 
 D'autres commandes/outils permettent de diagnostiquer l'état d'une release. Nous ne les verrons pas dans ce cours,  mais ils sont présentés en [annexe](#outils-de-diagnostic-helm). 
