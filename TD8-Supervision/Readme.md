@@ -93,8 +93,7 @@ vérifiez que l'application fonctionne.
 Sur votre machine ou sur une autre, vous pouvez tester : 
 `curl -H "Host: minecraft.localhost" "http://<monPoteIp>/`
 
-Puis générer de la charge
-`ab -n 10000 -c 10 -s 50000 -H "Host: minecraft.localhost" "http://<monPoteIp>/display_skin?username=toto"`
+Puis générer de la charge : `ab -n 10000 -c 10 -s 50000 -H "Host: minecraft.localhost" "http://<monPoteIp>/display_skin?username=toto"`
 
 Laissez tourner le site quelques temps. N'oubliez pas de recharger la page grafana, pour voir les métriques se mettre à jour plus rapidement. 
 

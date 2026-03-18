@@ -35,5 +35,5 @@ echo "Pour tester les metriques : kubectl get services"
 echo "curl <ipduservicetraefik>:9100/metrics"
 echo "Il faut vérifier que des metriques 'traefikxxx' existent"
 
-echo "Si elles existent, vous pouvez vérifier si elles sont collectées par prometheus'
+echo "Si elles existent, vous pouvez vérifier si elles sont collectées par prometheus"
 

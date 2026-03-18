@@ -185,7 +185,7 @@ metadata:
 
 :question: `helm-app.fullname` est une macro définie dans `_helpers.tpl`. Retrouvez la. De quoi est composé ce fullname ? Quel sera le nom de notre service ? Verifier-le via `kubectl`. 
 
-- Modifier le nom de votre Route pour qu'elle dépende du nom de la release.
+- Modifier le nom de votre HTTPRoute pour qu'elle dépende du nom de la release.
 - Installer ou mettre à jour deux release `toto` et `toto2`. Vérifier que le conflit lié au nom de la route a disparu.
 
 ### Paramétrer un template
