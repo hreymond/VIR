@@ -295,29 +295,187 @@ Pour vérifier que l'on détecte bien lorsque une modification de code casse le 
 
 :question: Votre pipeline de test permet-elle de repérer la perte de fonctionnement de votre conteneur ?
 
-# CD : Déploiement continu
+# Partie 3 - Déploiement continu
 
-En cours de rédaction
+## Faire en sorte que la registry gitlab soit accessible depuis votre PC
 
-Install glab et flux
+La registry gitlab est configurée sur le port `5050`, qui est bloqué par défaut sur `eduroam`
+
+Dans un nouveau terminal, activez le vpn de l'insa :
+
+`sudo openconnect sslvpn.cisr.fr -u <USERNAME>@insa-lyon.fr --authgroup=INSA`
+
+Vérifiez qu'il est possible de récupérer une image docker à partir de la registry
+
+`podman login gitlab.insa-lyon.fr:5050`
+
+`podman pull gitlab.insa-lyon.fr:5050/<USERNAME>/docker-ci/website:v3`
+
+## Déploiement continu avec Kubernetes
+
+Nous allons maintenant automatiser le déploiement de notre image docker sur un cluster Kubernetes. Si ce n'est pas fait, relancez votre cluster k3s.
+
+Maintenant, nous allons créer un pod qui utilise une image issue de la registry gitlab :
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website
+spec:
+  replica: 1
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+      - name: website
+        image: gitlab.insa-lyon.fr:5050/<USERNAME>/docker-ci/website:v3
+        ports:
+        - containerPort: 5000
+        imagePullPolicy: Always # Force Kubernetes à récupérer l'image la plus à jour
+```
+
+Remplacez votre nom d"utilisateur et appliquez ce manifest avec `kubectl apply`.
+
+:question: Est-ce que le pod réussit à ce lancer ? (La réponse est non) Inspectez le pod pour comprendre d'où vient le problème. Une fois que vous avez une idée, continuez le TD
+
+## Gestion des secrets dans Kubernetes
+
+Vous l'aurez deviné, pour accéder à la registry gitlab, il est d'abord nécessaire de s'authentifier. Nous l'avons fait avec `podman` avant le `podman pull`, mais `containerd`, le moteur de conteneurisation de K3S, ne permet pas de s'authentifier globalement. 
+
+De plus, on ne veut surtout pas que nos identifiants soit stockés en clair sur le cluster pour être utilisés à chaque `pull`
+
+## Génération de Token 
+
+Create a personal access token
+
+To authenticate with the Flux CLI, create a personal access token with
+the read_registry scope:
+
+In the upper-right corner, select your avatar.
+Select Edit profile.
+Select Personal access tokens.
+Enter a name and optional expiry date for the token.
+Select the read_registry scope.
+Select Create personal access token.
+
+Vérifiez que votre token est valide en l'utilisant pour récupérer une image dans le dépôt :
+
+`podman pull --creds "<USERNAME>:<TOKEN>" gitlab.insa-lyon.fr:5050/<USERNAME>/docker-ci/website:v3`
+
+## Authentification et gestion des mots de passe dans Kubernetes
+
+Il faut que kubernetes s'authentifie à chaque fois qu'il essaie de récupérer une image dans la registry. Pour cela, on va stocker le nom d'utilisateur et le token gitlab dans un *secret* Kubernetes ([Documentation des secrets](https://kubernetes.io/fr/docs/concepts/configuration/secret/)). 
+
+Parmi les différents types de secrets disponibles, il existe le type `docker-registry`, qui permettent de s'authentifier auprès d'une registry
+
+Créez le secret `gitlab-registry` à partir de cette ligne de commande (attention à bien remplacer <USERNAME> et <TOKEN> !) :
 
 ```bash
-sudo apt install glab
+kubectl create secret docker-registry gitlab-registry \
+--docker-server="gitlab.insa-lyon.fr:5050" \
+--docker-password="<TOKEN>" \
+--docker-username="<USERNAME>"
+```
+
+Vérifiez que votre secret est bien créé.
+
+Maintenant, il faut indiquer au pod `website` qu'il peut utiliser le secret `gitlab-registry` nouvellement créé pour chercher l'image de son conteneur.
+
+Ajoutez à la spécification du pod (paramètre `spec.template.spec`):
+
+```yaml
+imagePullSecrets: # Définit les identifiants à utiliser pour récupérer l'image
+- name: gitlab-registry
+```
+
+Puis, créez à nouveau le pod `website`, à partir du manifest mis à jour.
+
+:question: Est-ce que le pod réussit à ce lancer ? (Normalement, la réponse est oui) 
+
+Récupérez l'IP du pod, et vérifiez que le site est accessible (rappel, le site tourne sur le port 5000).
+
+Dans votre fork du dépôt `docker-ci`, modifiez la page d'acceuil du site minecraft pour afficher "Bonjour TC !" (fichier `flask_minimal.py`, ligne 45).
+
+Poussez les modifications et vérifiez : 
+- Une nouvelle version de l'image `website:v3` est construite et poussée dans la registry gitlab
+- En faisant `docker pull` en local, est-ce que l'image est bien mise à jour ?
+- Redémarrez votre déploiement avec `kubectl rollout restart deployment website` : Est-ce que Kubernetes va chercher la nouvelle version de l'image ? (cette information est visible avec `kubectl describe pod`) 
+- Vérifiez avec `curl` que la page d'acceuil du site est bien modifiée
+
+Maintenant que notre image est disponible pour Kubernetes, la dernière étape consiste à déclencher le `kubectl rollout` dans la pipeline gitlab.
+
+## Interagir avec le cluster Kubernetes depuis la pipeline gitlab
+
+Cette partie du TD est en chantier. Si vous êtes arrivé jusqu'ici, c'est surement que vous êtes débrouillard·e. 
+
+Vous retrouverez les informations pour interagir ci dessous, et dans la [documentation officielle](https://gitlab.insa-lyon.fr/help/user/clusters/agent/getting_started.md)
+
+
+1. Installer glab (utilitaire gitlab) et [flux](https://fluxcd.io/) (utilitaire pour le déploiement continu) :
+
+```bash
+sudo apt update && sudo apt install -y glab
 curl -s https://fluxcd.io/install.sh | sudo bash
 ```
 
+2. Créez un token d'accès personnel avec le scope `api` et `write_repository`
+
+Create a personal access token
+
+To authenticate with the Flux CLI, create a personal access token with
+the api and write_repository scope:
+
+In the upper-right corner, select your avatar.
+Select Edit profile.
+Select Personal access tokens.
+Enter a name and optional expiry date for the token.
+Select the api and write_repository scope.
+Select Create personal access token.
+
+3. Sur votre cluster, déployez `flux` et `glab`
+
 ```bash
-# Generate gitlab token
+# Bootstrap flux 
+flux bootstrap gitlab \
+--hostname=gitlab.insa-lyon.fr \
+--owner=<USERNAME> \
+--repository=docker-ci \
+--branch=main \
+--path=clusters/testing \
+--deploy-token-auth
 
-# Bootstrap flux
-export GITLAB_TOKEN=<gl-token>
-flux bootstrap gitlab --hostname=https://gitlab.insa-lyon.fr --token-auth --owner=hreymond --repository=docker-ci
 
-# 
-glab config set client_id <client_id> -g --host gitlab.insa-lyon.fr
-glab auth login
+# Bootstrap Glab
+glab version
+glab auth login -h gitlab.insa-lyon.fr
 
+glab cluster agent bootstrap --manifest-path clusters/toto toto
 ```
+
+4. Créez un job `deploy`, qui met à jour le déploiement website (référence : [documentation Gitlab](https://gitlab.insa-lyon.fr/help/user/clusters/agent/getting_started_deployments.md)) :
+
+```yaml
+deploy:
+  stage: deploy
+  image: "portainer/kubectl-shell:latest"
+  variables:
+    AGENT_KUBECONTEXT: <USERNAME>/docker-ci:toto
+  script:
+    - kubectl config use-context $AGENT_KUBECONTEXT
+    - kubectl get nodes
+    - kubectl rollout restart deployment website
+```
+
+5. Modifiez le site pour qu'il affiche "Vive la KFET !"
+6. Poussez les modifications : votre cluster est-il mis à jour automatiquement ?
+
+Pour continuer plus loin, vous pouvez mettre en place la livraison automatique et le déploiement automatique du Chart Helm du TD7 ! 
 
 # Liens utiles
 
