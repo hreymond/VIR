@@ -228,11 +228,7 @@ Lancez le job manuellement sans indiquer de variable pour le moment.
 Modifiez la tâche `publish` pour que la variable d'environnement `VERSION` soit utilisée comme version du package 
 
 Poussez les modifications sur le dépôt, et lancer manuellement le job `publish` en précisant la variable d'environnement VERSION=1.0.0.
-
-## Règles
-
-Restreindre la CI CD à la branche main, ou au commit qui commencent par COUCOU
-
+Vérifiez que votre registry gitlab contient bien un package avec la version 1.0.0.
 
 # Partie 2 - CI/CD avec docker
 
@@ -330,6 +326,10 @@ glab auth login
 Pour référence, une liste de tout les états possibles est disponible [ici](https://docs.gitlab.com/ci/jobs/#available-job-statuses)
 
 ## Extensions
+
+## Règles
+
+Restreindre la CI CD à la branche main, ou au commits qui commencent par COUCOU
 
 ### Code coverage
 
