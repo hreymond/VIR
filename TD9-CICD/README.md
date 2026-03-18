@@ -1,4 +1,4 @@
-# TD8 - Intégration continue, livraison continue et déploiement continu
+# TD9 - Intégration continue, livraison continue et déploiement continu
 
 Objectif du TD :
 - :dart: Avoir une vision de processus de déploiement : comment passe-t-on du code source à une application déployée ?
