@@ -51,7 +51,7 @@ Dans votre yaml, doit apparaitre une spécification de la forme :
 ```
 containers: 
 - name: whoami
-  image: <url>/<image>
+  image: <url>/<namespace>/<image>:<tag>
 ```
 
 Déployez les pods et le service / testez :
