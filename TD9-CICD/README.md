@@ -19,7 +19,7 @@ Dans ce TD, nous allons voir comment automatiser ces étapes.
 
 Bien qu'il soit possible d'automatiser ces tâches en local, il est commun d'effectuer ses opérations dans un gestionnaire de version distant comme Github ou Gitlab.
 
-Dans notre cas, nous utiliserons Gitlab pour mettre en place cette automatisation. L'objectif est le suivant: chaque nouveau commit poussé vers le dépôt gitlab entraine l'exécution d'une *pipeline*. Une pipeline est une ensemble de tâches - *jobs* en anglais - qui vont entrainer la compilation, le test, voir le déploiement du code modifié. 
+Dans notre cas, nous utiliserons Gitlab pour mettre en place cette automatisation. L'objectif est le suivant: chaque nouveau commit poussé vers le dépôt gitlab entraine l'exécution d'une *pipeline*. Une pipeline est une ensemble de tâches - *jobs* en anglais - qui vont entrainer la compilation, le test, voire le déploiement du code modifié. 
 
 Ces tâches sont regroupées en étapes - *stages* en anglais -. Les étapes par défaut dans Gitlab sont `build`, `test` et `deploy`, mais il est possible de définir des étapes personnalisées. Les tâches au sein d'une même étape s'exécutent en parallèle. Les étapes s'exécutent les unes après les autres : les tâches de `test` ne s'exécuteront qu'une fois les tâches de `build` terminées. Si notre programme C ne compile pas (étape `build`),  alors on ne va pas le tester (étape `test`).
 
@@ -41,7 +41,7 @@ Dans la suite du TD, nous détaillons comment mettre en place un pipeline avec G
 Dans la suite de cette partie, nous allons prendre l'exemple de ce dépôt : 
 - https://gitlab.insa-lyon.fr/hreymond/cicd_example
 
-La mise en place d'un pipeline Gitlab ce fait via un fichier déposé à la racine du dépôt : `.gitlab-ci.yml`. Ce fichier décrit les étapes et les tâches à exécuter au format `yaml`. Le `.gitlab-ci.yml` correspondant à la pipeline visible au dessus est le suivant :
+La mise en place d'un pipeline Gitlab se fait via un fichier déposé à la racine du dépôt : `.gitlab-ci.yml`. Ce fichier décrit les étapes et les tâches à exécuter au format `yaml`. Le `.gitlab-ci.yml` correspondant à la pipeline visible au dessus est le suivant :
 
 ```yaml
 # Fichier .gitlab-ci.yml
@@ -64,7 +64,7 @@ jobC:
     - cat README.md
 ```
 
-Chaque job exécute une suite de commandes (paramètre `script`), dans un conteneur docker. Ce conteneur, doit l'image peut être spécifiée par le paramètre `image`, s'exécute sur un serveur distant, qu'on appelle *runner*. 
+Chaque job exécute une suite de commandes (paramètre `script`), dans un conteneur docker. Ce conteneur, dont l'image peut être spécifiée par le paramètre `image`, s'exécute sur un serveur distant, qu'on appelle *runner*. 
 
 ## Exécution d'un pipeline
 
@@ -96,10 +96,7 @@ Pour cela, effectuez un fork du dépôt original, à l'aide du bouton *Fork* :
 
 Suivez les étapes jusqu'à obtenir votre propre fork du dépôt `minimal-ci`.
 
-Cloner le dépôt nouvellement créé :
-
-- De préférence en SHH : `git clone git@gitlab.insa-lyon.fr:<USERNAME INSA>/minimal-ci.git`
-- Si vous n'avez pas configuré votre clé SSH, vous pouvez aussi le cloner en http : `git clone https://gitlab.insa-lyon.fr/<USERNAME INSA>/minimal-ci.git`
+Clonez le dépôt nouvellement créé.
 
 ## Intégration continue (CI)
 
@@ -111,7 +108,7 @@ Pour commencer, nous allons vérifier que SuperDB compile bien : l'étape de `bu
 
 ### Build 
 
-Supprimer les Jobs existants dans `.gitlab-ci.yml`, et créez un nouveau job nommé `build`. Ce job doit compiler `superDB.c` pour créer `superDBExe` à l'aide de la commande suivante : `gcc -o superDBExe superDB.c`
+Supprimer les jobs existants dans `.gitlab-ci.yml`, et créez un nouveau job nommé `build`. Ce job doit compiler `superDB.c` pour créer `superDBExe` à l'aide de la commande suivante : `gcc -o superDBExe superDB.c`
 
 Attention, pour compiler superDB, il est nécessaire d'avoir les dépendances suivantes `gcc`, `libc6-dev`.
 
@@ -141,14 +138,15 @@ Mettre à jour le dépôt gitlab avec votre fichier `.gitlab-ci.yml`
 
 ### Artefacts
 
-Dans l'état actuel, on compile deux fois l'outil superDB. Comment fait-on pour que la tâche `test` utilise le binaire superDBExe compilé par la tâche `build` ? À l'aide des artefacts !
+Dans l'état actuel, on compile deux fois l'outil superDB. Comment peut-on faire pour que la tâche `test` utilise le binaire superDBExe compilé par la tâche `build` ?
 
 Les outils de CI/CD proposent des mécanismes pour partager des fichiers entre deux tâches d'une même pipeline.
 
-Dans Gitlab, ce mécanismes est appelé artefact - *artifact* en anglais-, et sa syntaxe est la suivante :
+Dans Gitlab, ce mécanisme est appelé artefact - *artifact* en anglais-, et sa syntaxe est la suivante :
 
 ```yaml
-job:
+<NOM DU JOB>:
+  ...
   artifacts:
     paths:
       - <Chemin à partager entre les tâches>
@@ -156,7 +154,9 @@ job:
 
 Définir `superDBExe` comme artefact du job `build` rendra le binaire accessible aux jobs suivants, comme `test`. 
 
-Ajoutez un artefact aux job `build` pour sauvegarder l'exécutable `superDBExe`. Mettez à jour le dépôt gitlab avec votre fichier `.gitlab-ci.yml`
+Ajoutez un artefact aux job `build` pour sauvegarder l'exécutable `superDBExe` et supprimez du job `test` la ligne qui compile superDBExe. Mettez à jour le dépôt gitlab avec votre fichier `.gitlab-ci.yml`
+
+:question: Votre pipeline fonctionne-t-elle toujours ? (Normalement oui)
 
 Ces artefacts sont ensuite disponibles au téléchargement, lorsque vous ouvrez le job concerné :
 
@@ -207,7 +207,7 @@ Dans cet exemple, la version du package est codée en dur (`latest`), ce qui n'e
 Pour éviter cela, plusieurs possibilités :
 - Utiliser l'ID du commit comme version du package : `${CI_COMMIT_ID}`. Dans ce cas, on aura un package différent pour chaque nouveau commit
 - Si un tag est associé au commit, l'utiliser comme version du package : `${CI_COMMIT_TAG}`. Dans ce cas, il faut déclencher le job `publish` uniquement si un tag est associé au commit.
-- Déclencher la livraison manuellement, et entrez la version à la main
+- Déclencher la livraison manuellement, et entrer la version à la main
 
 Nous allons voir ensemble comment mettre en place la dernière solution.
 
@@ -253,7 +253,7 @@ build:
   # Cette ligne permet d'avoir accès au moteur de conteneur docker
   services:
   - docker:24.0.5-dind
-  # Les commandes à éxécuter pour concevoir notre image
+  # Les commandes à exécuter pour concevoir notre image
   script:
   - echo "Building website image !"
   - ...
@@ -270,7 +270,7 @@ Pour partager l'image docker construite dans le job `build` avec le job `test`, 
 Pour cela, il faudra tout d'abord s'authentifier auprès de la registry à l'aide de la commande `docker login`, puis tagger et pousser l'image comme dans le TD6.
 Le format attendu pour l'image est `gitlab.insa-lyon.fr:5050/<USERNAME>/<REPOSITORY_NAME>/<IMAGE_NAME>:<IMAGE_TAG>`
 
-Copiez et compléter les commandes suivantes dans votre job `build` :
+Copiez et complétez les commandes suivantes dans votre job `build` :
 ```yaml
   - echo "$CI_REGISTRY_PASSWORD" | docker login gitlab.insa-lyon.fr:5050 -u $CI_REGISTRY_USER --password-stdin
   - docker tag ...
@@ -283,10 +283,10 @@ Copiez et compléter les commandes suivantes dans votre job `build` :
 Maintenant que notre image est bien construite, on veut tester les fonctionnalités de notre site. Pour des raisons de simplicité, on teste pour le moment uniquement la page d'acceuil, qui n'a pas besoin de la base de donnée Postgres.
 
 Créez un job `test` qui : 
-- Se connecte à la registry gitlab.insa-lyon.fr:5050 
-- Pull l'image website:v3 correspondant à votre projet
+- se connecte à la registry gitlab.insa-lyon.fr:5050 
+- récupère (pull) l'image website:v3 correspondant à votre projet
 - lance un conteneur à partir de l'image `website:v3`, en mode démon (`-d`) que vous appelerez `website`
-- attends 5 seconde que le serveur se lance (commande `sleep`)
+- attends 5 seconde que le serveur se lance, à l'aide de la commande `sleep`
 - exécute la commande `python test_website.py` à l'intérieur du conteneur `website`, avec `docker exec`. Ce petit script python va vérifier que le serveur réponde au requêtes HTTP.
 
 Poussez le `.gitlab-ci.yml` modifié. Vérifiez que votre Job est bien exécuté, et que l'image est testée sans problème.
@@ -297,15 +297,17 @@ Pour vérifier que l'on détecte bien lorsque une modification de code casse le 
 
 # Partie 3 - Déploiement continu
 
-## Faire en sorte que la registry gitlab soit accessible depuis votre PC
+Maintenant que nous sommes en mesure de construire une image docker dans une pipeline Gitlab, et de la stocker dans une registry, la prochaine étape consiste à déployer l'image sur notre cluster.
 
-La registry gitlab est configurée sur le port `5050`, qui est bloqué par défaut sur `eduroam`
+## Accéder à la registry Gitlab depuis l'INSA
 
-Dans un nouveau terminal, activez le vpn de l'insa :
+La registry gitlab de l'INSA est configurée sur le port `5050`, qui est bloqué par défaut sur `eduroam`
+
+Dans un nouveau terminal, activez le vpn de l'insa pour contourner le filtrage du port 5050 :
 
 `sudo openconnect sslvpn.cisr.fr -u <USERNAME>@insa-lyon.fr --authgroup=INSA`
 
-Vérifiez qu'il est possible de récupérer une image docker à partir de la registry
+Vérifiez qu'il est possible de récupérer une image docker à partir de la registry gitlab
 
 `podman login gitlab.insa-lyon.fr:5050`
 
@@ -346,23 +348,18 @@ Remplacez votre nom d"utilisateur et appliquez ce manifest avec `kubectl apply`.
 
 ## Gestion des secrets dans Kubernetes
 
-Vous l'aurez deviné, pour accéder à la registry gitlab, il est d'abord nécessaire de s'authentifier. Nous l'avons fait avec `podman` avant le `podman pull`, mais `containerd`, le moteur de conteneurisation de K3S, ne permet pas de s'authentifier globalement. 
+Vous l'aurez deviné, pour accéder à la registry gitlab, il est d'abord nécessaire de s'authentifier. Nous l'avons fait avec `podman` avant le `podman pull`, mais `containerd`, le moteur de conteneurisation de K3S, ne permet pas de s'authentifier globalement avec un `crictl login`. Il faut fournir les informations de connexion à chaque fois que l'on récupère une image. Pour éviter d'exposer nos identifiants et de les stocker en clair sur le cluster, on utilisera des Tokens d'identification Gitlab.
 
-De plus, on ne veut surtout pas que nos identifiants soit stockés en clair sur le cluster pour être utilisés à chaque `pull`
+## Génération de Token d'identification
 
-## Génération de Token 
+Dans un souci de sécurité, Gitlab permet d'interagir avec ses APIs en s'authentifiant à l'aide de TOKEN, générés aléatoirements et révocables à tout moment, pour éviter la fuite d'identifiants personnels.
 
-Create a personal access token
+Pour créer un token d'accès personnel, suivez les étapes suivantes :
 
-To authenticate with the Flux CLI, create a personal access token with
-the read_registry scope:
-
-In the upper-right corner, select your avatar.
-Select Edit profile.
-Select Personal access tokens.
-Enter a name and optional expiry date for the token.
-Select the read_registry scope.
-Select Create personal access token.
+- Sur gitlab.insa-lyon.fr, cliquez sur votre avatar visible dans le coin en haut à droite
+- Cliquez sur *Edit Profile*
+- Cliquez sur *Personal Access Tokens*
+- Entrez un nom pour votre token, et sélectionnez le scope `read_registry`
 
 Vérifiez que votre token est valide en l'utilisant pour récupérer une image dans le dépôt :
 
@@ -387,7 +384,7 @@ Vérifiez que votre secret est bien créé.
 
 Maintenant, il faut indiquer au pod `website` qu'il peut utiliser le secret `gitlab-registry` nouvellement créé pour chercher l'image de son conteneur.
 
-Ajoutez à la spécification du pod (paramètre `spec.template.spec`):
+Ajoutez à la spécification du pod (paramètre `spec.template.spec`) :
 
 ```yaml
 imagePullSecrets: # Définit les identifiants à utiliser pour récupérer l'image
