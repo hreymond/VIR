@@ -29,6 +29,8 @@ L'objectif est de monter un benchmark, permettant de tester votre infrastructure
 
 ### Avant de lancer les 
 
+VPN INSA !!!
+
 ### Tester la connectivité entre les machines
 
 -> On commence par ping ?
@@ -38,14 +40,16 @@ L'objectif est de monter un benchmark, permettant de tester votre infrastructure
 
 Protocol	Port	Source	Destination	Description
 TCP	6443	Agents	Servers	K3s supervisor and Kubernetes API Server
-UDP	8472	All nodes	All nodes	Required only for Flannel VXLAN
+UDP	8472	All nodes	All nodes	Required for Flannel VXLAN
 TCP	10250	All nodes	All nodes	Kubelet metrics and API
 
 ### Lancer les serveurs
 
 Commencer par lancer les serveur.
 
-Pour les étudiants qui auront le rôle de serveur, modifiez le script `startk3sServer.sh` pour ajouter l'argument `--node-name <Nom du noeud>` qui nommera votre noeud.
+Pour les étudiants qui auront le rôle de serveur, modifiez le script `startk3sServer.sh` pour ajouter deux arguments à k3s :
+- l'argument `--node-name <Nom du noeud>` pour nommer votre noeud.
+- l'argument `--tls-san <IP SERVEUR>` pour permettre la connection de kubectl depuis l'extérieur (Par défaut, le certificat HTTPS qui sécurise la connexion au cluster n'est valide que pour `localhost`)
 
 Ensuite lancez le serveur `k3s` et partagez votre IP aux autres membres du groupe.
 
@@ -67,18 +71,15 @@ Curl doit vous renvoyer un JSON de ce type,  e qui signifie que l'API Kubernetes
 
 ### Lancer les agents
 
-
-Pour les étudiants qui auront le rôle de server, modifier le script `startk3sagent.sh` pour deux arguments à k3s :
-- l'argument `--node-name <Nom du noeud>` pour nommer votre noeud.
-- l'argument `--tls-san <IP SERVEUR>` pour permettre la connection de kubectl depuis l'extérieur (Par défaut, le certificat HTTPS qui sécurise la connexion au cluster n'est valide que pour `localhost`)
+Pour les étudiants qui auront le rôle de server, modifier le script `startk3sagent.sh` pour ajouter l'argument `--node-name <Nom du noeud>` qui nommera votre noeud.
 
 :question: Quelle variable d'environnement est utilisée par le script pour définir l'IP du server ? Définissez à la (`export VAR=value`)
 
-### 
+### Vérifier le bon 
 
 Sur l'instance du serveur :
 
-# Check all nodes
+ Check all nodes
 
 sudo k3s kubectl get nodes
 > Expected output:
@@ -98,3 +99,37 @@ Partagez entre les étudiants ca
   - `mkdir .kube`
   - `vim .kube/config.yaml` : copiez la configuration du serveur, et remplacez `127.0.0.1` par l'IP du serveur
   - `export KUBECONFIG=/home/user/.kube/config.yaml`
+
+k9s -r 0.2 (rafraichissement tout les 200ms)
+
+
+génération de charge :
+
+`sudo apt update; sudo apt install hey`
+
+`hey -c 20 -t 2 -z 1h -host minecraft.localhost "http://<CLUSTER-IP>/display_skin?username=Aypierre"`
+
+## 
+
+Répartissez vous le travail pour que : 
+
+- Prometheus
+- Déployer Traefik
+- Déployer website
+  - 4 pods website
+  - 1 pod postgres
+- Mettre en place CI/CD
+
+1. Évaluer la performance de website : combien de requêtes par secondes, quelle latence ?
+2. Tester l'impact de la chute d'un agent sur la qualité de service de l'application : 
+   - observe-t-on des interruptions de service si un des noeuds qui héberge uniquement des pods website tombe ?
+   - observe-t-on des interruptions de service si le noeud qui héberge le pod postgres tombe ?
+   - Évaluez le downtime   
+
+Rédigez un mini rapport (5 pages MAX):
+- Diagramme d'architecture de votre cluster (noeuds, applis)
+- Guide de déploiement : Un nouveau venu dans l'entreprise  
+    - Rédiger la procédure du déploiement d'une nouvelle application : quelles étapes à suivre pour un premier déploiement ? 
+    - Rédiger la procédure de mise à jour d'une nouvelle application
+- Bilan de performance de website
+- 
