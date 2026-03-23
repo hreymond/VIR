@@ -132,6 +132,8 @@ Copiez votre Job `build` pour créer le job `test`.
 
 Mettre à jour le dépôt gitlab avec votre fichier `.gitlab-ci.yml`
 
+:warning: Ce job ne doit pas utiliser l'image de base fournie par gitlab. Le script `testSuperDB.sh` requiert l'utilitaire `bash`, ainsi que des librairies non fournies par cette image. Utilisez une image `debian`, `ubuntu` ou `gcc`.
+
 :question: Est-ce que le test de SuperDB fonctionne ? (Normalement oui)
 
 :question: Est-il nécessaire de recompiler superDB dans `test` ? Pourquoi ?
