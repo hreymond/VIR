@@ -39,7 +39,7 @@ Dans la suite du TD, nous détaillons comment mettre en place un pipeline avec G
 ## Pipelines Gitlab
 
 Dans la suite de cette partie, nous allons prendre l'exemple de ce dépôt : 
-- https://gitlab.insa-lyon.fr/hreymond/cicd_example
+- [https://gitlab.insa-lyon.fr/vir/minimal-ci](https://gitlab.insa-lyon.fr/vir/minimal-ci)
 
 La mise en place d'un pipeline Gitlab se fait via un fichier déposé à la racine du dépôt : `.gitlab-ci.yml`. Ce fichier décrit les étapes et les tâches à exécuter au format `yaml`. Le `.gitlab-ci.yml` correspondant à la pipeline visible au dessus est le suivant :
 
