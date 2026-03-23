@@ -194,6 +194,8 @@ Créer un job "publish", stage "deploy", qui exécute la commande suivante à pa
 curl -v -X PUT --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file superDBExe https://gitlab.insa-lyon.fr/api/v4/projects/${CI_PROJECT_ID}/packages/generic/superDB/latest/superDBExe
 ```
 
+:warning: Comme la commande inclus un caractère `:`, il est nécessaire que la commande soit entourée de guillemets simple `'` pour que gitlab la considère comme une commande valide
+
 :question: Quelle valeurs ont été choisies pour les paramètres *id*, *package_name*, *package_version* et *file_name* ?
 
 :question: À quoi correspondent chacune des options de cette commande curl ?
