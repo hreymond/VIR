@@ -325,7 +325,7 @@ kind: Deployment
 metadata:
   name: website
 spec:
-  replica: 1
+  replicas: 1
   selector:
     matchLabels:
       app: website
