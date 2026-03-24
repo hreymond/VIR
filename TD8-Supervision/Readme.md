@@ -142,7 +142,9 @@ Voici les quelques commandes bien utiles pour corriger les configurations.
 
 # Références
 https://github.com/prometheus-community/helm-chart -> Prometheus
+https://oneuptime.com/blog/post/2026-02-02-k3s-monitoring/view -> Prometheus/k3s
 https://oneuptime.com/blog/post/2026-02-06-opentelemetry-k3s-lightweight-kubernetes/view -> Opentelemetry
+https://opentelemetry.io/docs/platforms/kubernetes/helm/demo/ -> Opentelemetry
 https://locust.io/ -> Pour la montée en charge
 https://gist.github.com/rxaviers/7360908
 
