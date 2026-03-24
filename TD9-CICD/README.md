@@ -21,9 +21,9 @@ Bien qu'il soit possible d'automatiser ces tâches en local, il est commun d'eff
 
 Dans notre cas, nous utiliserons Gitlab pour mettre en place cette automatisation. L'objectif est le suivant: chaque nouveau commit poussé vers le dépôt gitlab entraine l'exécution d'une *pipeline*. Une pipeline est une ensemble de tâches - *jobs* en anglais - qui vont entrainer la compilation, le test, voire le déploiement du code modifié. 
 
-Ces tâches sont regroupées en étapes - *stages* en anglais -. Les étapes par défaut dans Gitlab sont `build`, `test` et `deploy`, mais il est possible de définir des étapes personnalisées. Les tâches au sein d'une même étape s'exécutent en parallèle. Les étapes s'exécutent les unes après les autres : les tâches de `test` ne s'exécuteront qu'une fois les tâches de `build` terminées. Si notre programme C ne compile pas (étape `build`),  alors on ne va pas le tester (étape `test`).
+Ces tâches sont regroupées en étapes - *stages* en anglais -. Les étapes par défaut dans Gitlab sont `build`, `test` et `deploy`, mais il est possible de définir des étapes personnalisées. Les tâches au sein d'une même étape s'exécutent en parallèle. Les étapes s'exécutent les unes après les autres. Si notre programme C ne compile pas (étape `build`),  alors on ne va pas le tester (étape `test`).
 
-La figure suivante présente la visualisation d'une *pipeline* gitlab avec deux *stages* : `build` et `test`. Le stage `build` contient une seule tâche - *job* en anglais-, tandis que le stage `test` en contient deux. 
+La figure suivante présente la visualisation d'une *pipeline* gitlab avec deux *étapes* : `build` et `test`. L'étape `build` contient une seule tâche - *job* en anglais-, tandis que l'étape `test` en contient deux. 
 
 ![Pipeline Menu](/figures/ci-status.png)
 
@@ -38,10 +38,10 @@ Dans la suite du TD, nous détaillons comment mettre en place un pipeline avec G
 
 ## Pipelines Gitlab
 
-Dans la suite de cette partie, nous allons prendre l'exemple de ce dépôt : 
+Dans cette partie, nous allons prendre l'exemple de ce dépôt : 
 - [https://gitlab.insa-lyon.fr/vir/minimal-ci](https://gitlab.insa-lyon.fr/vir/minimal-ci)
 
-La mise en place d'un pipeline Gitlab se fait via un fichier déposé à la racine du dépôt : `.gitlab-ci.yml`. Ce fichier décrit les étapes et les tâches à exécuter au format `yaml`. Le `.gitlab-ci.yml` correspondant à la pipeline visible au dessus est le suivant :
+La mise en place d'un pipeline Gitlab se fait via un fichier déposé à la racine du dépôt : `.gitlab-ci.yml`. Ce fichier décrit les étapes et les tâches au format `yaml`. Le `.gitlab-ci.yml` correspondant à la pipeline est le suivant :
 
 ```yaml
 # Fichier .gitlab-ci.yml
