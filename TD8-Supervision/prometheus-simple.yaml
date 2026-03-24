@@ -1,0 +1,9 @@
+# Simple values for kube-prometheus stack
+kubeStateMetrics:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+grafana:
+  defaultDashboardsEnabled: false

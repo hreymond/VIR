@@ -65,6 +65,8 @@ def display_skin():
     except urllib.error.HTTPError as e:
         if e.code in (204, 404):
             return """User not found <a href="/"><input type="button" value="Back"/></a>""", 404
+        if e.code == 429:
+            return """Too many requests to mojang""", 200
         raise
 
     player_uuid = data.get("id")
@@ -90,9 +92,12 @@ def admin_view():
                     <p>Number of query for each username</p>
                     <ul>
                 """
+    
     for stat in stats:
         html_page += f"<li>{stat[1]} : {stat[2]} queries</li>"
     html_page += "</ul>"
+    conn.close()
+
     return html_page
 
 # Update the count of username
@@ -119,6 +124,6 @@ def update_query_count(username) -> int:
         nb_query = cur.fetchone()
 
     conn.commit()
-    
+    conn.close()
     # Return query count
     return nb_query[0]

@@ -113,7 +113,7 @@ Il est courant d'avoir à mettre à jour une Release, pour changer la configurat
 
 Une solution naïve consiste à réinstaller la Release :
 - Désinstallez la release `toto` : `helm uninstall toto`
-- Installation à nouveau la release, avec 4 réplicas: `helm install toto --set replicaCount=4`
+- Installation à nouveau la release, avec 4 réplicas: `helm install toto helm-app --set replicaCount=4`
 
 Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes (pods, services, ...), et notre site devient indisponible, jusqu'à ce que la nouvelle release soit créée. De plus, en cas d'erreur, le retour en arrière peut être complexe.
 
@@ -123,7 +123,7 @@ Cette méthode est assez brutale : on supprime toutes les ressources Kubernetes 
 
 Mettre à jour le nombre de réplicas de la release `toto` à 2 en utilisant la commande `helm upgrade`. 
 Vous observerez que la REVISION de la release est passée de 1 à 2. 
-Mettre à jour le tag de l'image nginx pour un tag invalide, comme `fauxlabel` (image.tag dans `values.yaml`)
+Mettre à jour le tag de l'image nginx souhaité pour un tag invalide, comme `fauxlabel` (image.tag dans `values.yaml`)
 La REVISION de la release passe de 2 à 3. :question:  À l'aide de `kubectl/k9s`, comment pouvez-vous diagnostiquer que l'image est invalide ?
 
 D'autres commandes/outils permettent de diagnostiquer l'état d'une release. Nous ne les verrons pas dans ce cours,  mais ils sont présentés en [annexe](#outils-de-diagnostic-helm). 
@@ -185,7 +185,7 @@ metadata:
 
 :question: `helm-app.fullname` est une macro définie dans `_helpers.tpl`. Retrouvez la. De quoi est composé ce fullname ? Quel sera le nom de notre service ? Verifier-le via `kubectl`. 
 
-- Modifier le nom de votre Route pour qu'elle dépende du nom de la release.
+- Modifier le nom de votre HTTPRoute pour qu'elle dépende du nom de la release.
 - Installer ou mettre à jour deux release `toto` et `toto2`. Vérifier que le conflit lié au nom de la route a disparu.
 
 ### Paramétrer un template
@@ -241,7 +241,7 @@ Pour cette partie, formez des binômes : vous allez déployer le chart Helm de v
 
 ## Packager une Chart Helm
 
-Helm dispose d'une commande pour packager un Chart en une archive `.tar`: `helm template <Chart Folder>`.
+Helm dispose d'une commande pour packager un Chart en une archive `.tar`: `helm package <Chart Folder>`.
 
 Utilisez cette commande pour packager votre Chart `minecraft-app`. 
 

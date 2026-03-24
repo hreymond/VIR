@@ -17,10 +17,8 @@ spec:
     spec:
       containers:
         - name: web
-          # Pour que l'image soit accessible, il faut que
-          # - le registry du début du TD soit lancé
-          # - l'image website:v3 soit push, comme dans le début du TD avec whoami
-          # - Indiquer le registry/le namespace/le nom de l'image. website:v3 ne suffit pas
+          # Rappel, l'image est composée de 
+          # <repository>/<namespace>/<image>:<tag>
           image: "localhost:5000/tc/website:v3"
           ports:
           - containerPort: 5000
