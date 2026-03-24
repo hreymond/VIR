@@ -9,7 +9,7 @@ Organisez-vous par groupe de 6. 5 machines formeront le cluster, et la dernière
 
 :warning: Utilisez impérativement la clé du département, et pas une VM pour éviter les problèmes de pare-feu. Si la clé ne fonctionne pas sur votre machine, vous prendrez le rôle de machine de test de charge.
 
-> ![NOTE]
+> [!NOTE]
 >
 > Rôle d'un noeud : Agent vs Serveur
 >
@@ -75,11 +75,12 @@ Curl doit vous renvoyer un JSON de ce type, ce qui signifie que l'API Kubernetes
 Pour les serveurs, vous pouvez observer l'état du cluster avec `sudo kubectl get nodes`. Pour les agents, nous verrons cela plus tard.
 
 Vous devriez obtenir un résultat similaire à :
-
-> NAME   STATUS   ROLES                AGE   VERSION
-> server3   Ready    control-plane,etcd   17m   v1.34.3+k3s1
-> server2   Ready    control-plane,etcd   18m   v1.34.3+k3s1
-> server1   Ready    control-plane,etcd   39m   v1.34.5+k3s1
+```
+NAME   STATUS   ROLES                AGE   VERSION
+server3   Ready    control-plane,etcd   17m   v1.34.3+k3s1
+server2   Ready    control-plane,etcd   18m   v1.34.3+k3s1
+server1   Ready    control-plane,etcd   39m   v1.34.5+k3s1
+```
 
 ### Lancer les agents
 
@@ -92,12 +93,14 @@ Pour les étudiants qui auront le rôle d'agent, modifier le script `startk3sage
 
 Maintenant que notre cluster est totalement démarré, sur les noeuds serveurs, vérifiez que la commande `sudo kubectl get nodes` retourne un résultat similaire à :
 
-> NAME   STATUS   ROLES                AGE   VERSION
-> agent1   Ready    <none>                 1m   v1.34.3+k3s1
-> agent2   Ready    <none>                 2m   v1.34.3+k3s1
-> server1   Ready    control-plane,etcd   39m   v1.34.5+k3s1
-> server2   Ready    control-plane,etcd   18m   v1.34.3+k3s1
-> server3   Ready    control-plane,etcd   17m   v1.34.3+k3s1
+```
+NAME   STATUS   ROLES                AGE   VERSION
+agent1   Ready    <none>                 1m   v1.34.3+k3s1
+agent2   Ready    <none>                 2m   v1.34.3+k3s1
+server1   Ready    control-plane,etcd   39m   v1.34.5+k3s1
+server2   Ready    control-plane,etcd   18m   v1.34.3+k3s1
+server3   Ready    control-plane,etcd   17m   v1.34.3+k3s1
+```
 
 Sur les agents, si vous lancez la même commande, échec : kubectl cherche à joindre l'API Kube en local (127.0.0.1:6443), mais c'est uniquement les noeuds serveurs qui sont en mesure de traiter les appels API Kube.
 
