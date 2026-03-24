@@ -137,7 +137,7 @@ Pour visualiser l'état du cluster en temps réel, vous pouvez utiliser `k9s` : 
 
 ### Évaluation du cluster
 
-Évaluez votre cluster selon les critères présentés ci dessous, et rédigez un mini rapport d'évaluation (5 pages MAX):
+Évaluez votre cluster selon les critères présentés ci dessous :
 
 1. Analyse de la performance de `website`
    - Combien de requêtes par seconde peut traiter website ?
@@ -155,4 +155,3 @@ Pour visualiser l'état du cluster en temps réel, vous pouvez utiliser `k9s` : 
 - Reset la base de donnée d'un noeud : `sudo rm -rf /var/lib/rancher/k3s/server/db/`
 - Nettoyer tout : `sudo rm -rf /var/lib/rancher/k3s/`
 
-Quelle différence entre les deux ?
