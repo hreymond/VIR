@@ -38,10 +38,6 @@ La dernière machine sera utilisée pour tester la charge qui testera votre infr
 
 ### Tester la connectivité entre les machines
 
-Avant de démarrer, connectez vous au VPN de l'INSA pour éviter le blocage de ports par `eduroam`
-
-`sudo openconnect sslvpn.cisr.fr -u <username>@insa-lyon.fr --authgroup=INSA`
-
 Vérifiez tout d'abord s'il est possible pour chacune des machines de se pinguer.
 
 ### Lancer les serveurs
@@ -53,7 +49,7 @@ Pour les étudiants qui auront le rôle de serveur, modifiez le script `startk3s
 - l'argument `--node-name <Nom du noeud>` pour nommer votre noeud.
 - l'argument `--tls-san <IP SERVEUR>` pour permettre la connection de kubectl depuis l'extérieur (Par défaut, le certificat HTTPS qui sécurise la connexion au cluster n'est valide que pour `localhost`)
 - pour le noeud serveur 1, l'argument `--cluster-init`, qui permet d'avoir plusieurs noeuds serveur
-- pour les noeuds serveurs 2 et 3, l'argument `--server <IP du serveur 1>` pour rejoindre le cluster existant.
+- pour les noeuds serveurs 2 et 3, l'argument `--server https://<IP du serveur 1>:6443` pour rejoindre le cluster existant.
 Ensuite lancez le serveur `k3s` et partagez votre IP aux autres membres du groupe.
 
 Une fois les serveurs démarrés, les autres membres du groupe vérifient que le port 6443, utilisé par l'API Kube, est bien accessible : `curl -k <IP SERVER>:6443` 
