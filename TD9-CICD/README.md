@@ -388,7 +388,9 @@ Vérifiez que votre secret est bien créé.
 
 Maintenant, il faut indiquer au pod `website` qu'il peut utiliser le secret `gitlab-registry` nouvellement créé pour chercher l'image de son conteneur.
 
+
 Ajoutez à la spécification du pod (paramètre `spec.template.spec`) :
+
 
 ```yaml
 imagePullSecrets: # Définit les identifiants à utiliser pour récupérer l'image
