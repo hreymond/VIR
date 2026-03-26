@@ -52,7 +52,7 @@ Pour les étudiants qui auront le rôle de serveur, modifiez le script `startk3s
 - pour les noeuds serveurs 2 et 3, l'argument `--server https://<IP du serveur 1>:6443` pour rejoindre le cluster existant.
 Ensuite lancez le serveur `k3s` et partagez votre IP aux autres membres du groupe.
 
-Une fois les serveurs démarrés, les autres membres du groupe vérifient que le port 6443, utilisé par l'API Kube, est bien accessible : `curl -k <IP SERVER>:6443` 
+Une fois les serveurs démarrés, les autres membres du groupe vérifient que le port 6443, utilisé par l'API Kube, est bien accessible : `curl -k https://<IP SERVER>:6443` 
 
 Curl doit vous renvoyer un JSON de ce type, ce qui signifie que l'API Kubernetes est bien fonctionnelle, mais que vous n'êtes pas autorisé à y accéder. Nous verrons plus tard comment récupérer les identifiants de connection : 
 
