@@ -161,12 +161,14 @@ Voici les quelques commandes bien utiles pour corriger les configurations.
 - `jq` : parse une sortie json
 
 # Références
-https://github.com/prometheus-community/helm-chart -> Prometheus
-https://oneuptime.com/blog/post/2026-02-02-k3s-monitoring/view -> Prometheus/k3s
-https://oneuptime.com/blog/post/2026-02-06-opentelemetry-k3s-lightweight-kubernetes/view -> Opentelemetry
-https://opentelemetry.io/docs/platforms/kubernetes/helm/demo/ -> Opentelemetry
-https://locust.io/ -> Pour la montée en charge
-https://gist.github.com/rxaviers/7360908
+https://github.com/prometheus-community/helm-chart -> Prometheus  
+https://oneuptime.com/blog/post/2026-02-02-k3s-monitoring/view -> Prometheus/k3s  
+https://oneuptime.com/blog/post/2026-02-06-opentelemetry-k3s-lightweight-kubernetes/view -> Opentelemetry  
+https://opentelemetry.io/docs/platforms/kubernetes/helm/demo/ -> Opentelemetry  
+https://locust.io/ -> Pour la montée en charge  
+https://gist.github.com/rxaviers/7360908  
 
-:ok: si vous voyez des bugs dans le sujet, n'hésitez-pas à nous prévenir !!!
+:ok: si vous voyez des bugs dans le sujet, n'hésitez-pas à nous prévenir !!!  
+
+![The deployment error path](../figures/errorpath.png)
 
