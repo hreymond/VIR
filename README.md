@@ -20,7 +20,14 @@ Ce dépôt contient les sujets de TP de VIR :
 - [TD10-Projet](TD10-Projet) Projet d'intégration final
 
 
-# Jeux autour du devops
-https://sadservers.com/
+# Jeux et cours en ligne autour du devops
+https://sadservers.com/  
+https://github.com/5kr1p7/game-of-pods  
+https://aws.amazon.com/fr/training/digital/immersive-learning/   
+https://cloud.google.com/blog/topics/training-certifications/the-arcade-with-google-cloud-game-helps-boost-cloud-skills   
+http://flaws.cloud/   
+
+
+
 
 
