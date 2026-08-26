@@ -20,3 +20,7 @@ Ce dépôt contient les sujets de TP de VIR :
 - [TD10-Projet](TD10-Projet) Projet d'intégration final
 
 
+# Jeux autour du devops
+https://sadservers.com/
+
+
