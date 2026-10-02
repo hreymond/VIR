@@ -235,3 +235,8 @@ flowchart LR
     Curl -- ip uniq (intern) --> Service -- ip (rs)--> nginx:stable:1
   end
 ```
+
+
+# Ressources
+
+![Schema de déclanchement](/figures/vir.png)
